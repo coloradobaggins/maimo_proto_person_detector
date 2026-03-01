@@ -6,6 +6,8 @@ import { useWebcam } from "@/hooks/useWebcam";
 import { useFaceDetection } from "@/hooks/useFaceDetection";
 import { useConfig } from "@/context/ConfigContext";
 
+const LANG = "es";
+
 export default function Home() {
   const [isDebug, setIsDebug] = useState(false);
 
@@ -16,6 +18,9 @@ export default function Home() {
 
   console.log("Config actual:", config);
 
+  // ── Obtener contenido activo segun perfil detectado, en idioma seleccionado ─────//
+  const activeContent = config.data[detectionState].content.find(c => c.lang === LANG);
+
   return (
     <main>
       <h1>FaceApi js</h1>
@@ -23,6 +28,26 @@ export default function Home() {
       {!isLoaded && <p>Cargando modelos...</p>}
       {isLoaded && <p>Modelos cargados.</p>}
       {isLoaded && isReady && <p>Listo para detectar people</p>}
+
+      {/* Toggle video debug */}
+      <label style={{ display: "flex", alignItems: "center", gap: 8, margin: "12px 0" }}>
+        <input type="checkbox"
+        checked={isDebug}
+        onChange={e => setIsDebug(e.target.checked)}
+        />
+        Video debug
+      </label>
+
+      {/* Video + canvas superpuesto, visibles solo en debug */}
+      <div style={{ position: "absolute", width: 640, height: 480, visibility: isDebug ? "visible" : "hidden" }}>
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          playsInline
+          style={{ width: 640, height: 480 }}
+        />
+      </div>
 
       { /* Indicadores */}
       <div style={{ display: "flex", gap: 24, marginTop: 24}}>
@@ -46,16 +71,13 @@ export default function Home() {
 
       <p>Estado: {detectionState}</p>
 
-      {/* Video + canvas superpuesto, visibles solo en debug */}
-      <div style={{ position: "relative", width: 640, height: 480, visibility:"hidden"}}>
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          playsInline
-          style={{ width: 640, height: 480 }}
-        />
-      </div>
+      {/* Contenido del perfil activo: */}
+      {activeContent && (
+        <div style={{marginTop: 32}}>
+          <h2>{activeContent.title}</h2>
+          <p>{activeContent.description}</p>
+        </div>
+      )}
 
     </main>
   );
