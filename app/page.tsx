@@ -4,18 +4,22 @@ import { useState } from "react";
 import { useFaceApi } from "@/hooks/useFaceApi";
 import { useWebcam } from "@/hooks/useWebcam";
 import { useFaceDetection } from "@/hooks/useFaceDetection";
+import { useConfig } from "@/context/ConfigContext";
 
 export default function Home() {
   const [isDebug, setIsDebug] = useState(false);
 
   const { isLoaded } = useFaceApi();
-  const { videoRef, isReady, error } = useWebcam();
-  const { detectionState, canvasRef } = useFaceDetection(videoRef, isReady, isLoaded);
+  const { videoRef, isReady, error: errorWebcam } = useWebcam();
+  const { config, isLoading: isLoadingConfig, error: errorConfig } = useConfig();
+  const { detectionState, canvasRef } = useFaceDetection(videoRef, isReady, isLoaded, config.config.sensor_detections);
+
+  console.log("Config actual:", config);
 
   return (
     <main>
       <h1>FaceApi js</h1>
-      {error && <p>Error con la webcam: {error.message}</p>}
+      {errorWebcam && <p>Error con la webcam: {errorWebcam.message}</p>}
       {!isLoaded && <p>Cargando modelos...</p>}
       {isLoaded && <p>Modelos cargados.</p>}
       {isLoaded && isReady && <p>Listo para detectar people</p>}

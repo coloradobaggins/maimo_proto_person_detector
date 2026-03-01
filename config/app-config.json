@@ -1,0 +1,74 @@
+{
+    "config": {
+        "sensor_detections": {
+            "DETECTION_INTERVAL_MS": 200,
+            "CONSECUTIVE_HITS_REQUIRED": 8,
+            "COOLDOWN_MS": 10000,
+            "VERIFY_MAX_ATTEMPTS": 7
+        },
+        "detection_profiles": [
+            "idle",
+            "adult",
+            "child",
+            "both"
+        ]
+    },
+    "data": {
+        "idle": {
+            "content": [
+                {
+                    "lang": "es",
+                    "title": "Bienvenido",
+                    "description": "Acercate para continuar"
+                },
+                {
+                    "lang": "en",
+                    "title": "Welcome",
+                    "description": "Step closer to continue"
+                }
+            ]
+        },
+        "adult": {
+            "content": [
+                {
+                    "lang": "es",
+                    "title": "Hola adulto",
+                    "description": "Contenido especial para adultos"
+                },
+                {
+                    "lang": "en",
+                    "title": "Hello adult",
+                    "description": "Special content for adults"
+                }
+            ]
+        },
+        "child": {
+            "content": [
+                {
+                    "lang": "es",
+                    "title": "Hola niño",
+                    "description": "Contenido especial para niños"
+                },
+                {
+                    "lang": "en",
+                    "title": "Hello child",
+                    "description": "Special content for children"
+                }
+            ]
+        },
+        "both": {
+            "content": [
+                {
+                    "lang": "es",
+                    "title": "Hola a todos",
+                    "description": "Contenido para adultos y niños"
+                },
+                {
+                    "lang": "en",
+                    "title": "Hello everyone",
+                    "description": "Content for adults and children"
+                }
+            ]
+        }
+    }
+}

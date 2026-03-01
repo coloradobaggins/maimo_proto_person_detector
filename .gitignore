@@ -1,4 +1,5 @@
 __mocks__/
+__layout__old.tsx
 
 # dependencies
 /node_modules

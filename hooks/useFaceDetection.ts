@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import faceapi from "@/lib/face-api";
+import { SensorDetections } from "@/types/config";
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
@@ -10,11 +11,12 @@ export type DetectionState = "idle" | "adult" | "child" | "both";
 type Phase = "searching" | "active" | "verifying";
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
-
+/*
 const DETECTION_INTERVAL_MS = 200;
 const CONSECUTIVE_HITS_REQUIRED = 8;
 const COOLDOWN_MS = 10_000;
 const VERIFY_MAX_ATTEMPTS = 6;
+*/
 
 // ─── Helper puro (sin dependencias del hook) ─────────────────────────────────
 
@@ -38,9 +40,17 @@ export function useFaceDetection(
   videoRef: React.RefObject<HTMLVideoElement>,
   isReady: boolean,
   isLoaded: boolean,
+  sensorConfig: SensorDetections
 ) {
   const [detectionState, setDetectionState] = useState<DetectionState>("idle");
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const { 
+    DETECTION_INTERVAL_MS,
+    CONSECUTIVE_HITS_REQUIRED, 
+    COOLDOWN_MS, 
+    VERIFY_MAX_ATTEMPTS 
+  } = sensorConfig
 
   const phase = useRef<Phase>("searching");
   const consecutiveHits = useRef(0);
