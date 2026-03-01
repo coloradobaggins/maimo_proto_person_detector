@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useFaceApi } from "@/hooks/useFaceApi";
 import { useWebcam } from "@/hooks/useWebcam";
 import { useFaceDetection } from "@/hooks/useFaceDetection";
+import { useWebSocket } from "@/hooks/useWebSocket";
 import { useConfig } from "@/context/ConfigContext";
 
 const LANG = "es";
@@ -13,10 +14,12 @@ export default function Home() {
 
   const { isLoaded } = useFaceApi();
   const { videoRef, isReady, error: errorWebcam } = useWebcam();
-  const { config, isLoading: isLoadingConfig, error: errorConfig } = useConfig();
+  const { config, isLoading: isLoadingConfig, error: errorConfig, refresh } = useConfig();
   const { detectionState, canvasRef } = useFaceDetection(videoRef, isReady, isLoaded, config.config.sensor_detections);
 
   console.log("Config actual:", config);
+
+  useWebSocket(refresh); // websocket para escuchar eventos
 
   // ── Obtener contenido activo segun perfil detectado, en idioma seleccionado ─────//
   const activeContent = config.data[detectionState].content.find(c => c.lang === LANG);
