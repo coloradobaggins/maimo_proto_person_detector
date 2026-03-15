@@ -11,7 +11,8 @@
             "adult",
             "child",
             "both"
-        ]
+        ],
+        "default_puzzle_category": "obelisco"
     },
     "data": {
         "idle": {
@@ -67,6 +68,50 @@
                     "lang": "en",
                     "title": "Hello everyone",
                     "description": "Content for adults and children"
+                }
+            ]
+        }
+    },
+    "puzzles": {
+        "obelisco": {
+            "images": [
+                {
+                    "filename": "o1.jpg",
+                    "title": "Titulo o1",
+                    "description": "Descripción o1"
+                },
+                {
+                    "filename": "o2.jpg",
+                    "title": "Titulo o2",
+                    "description": "Descripción o2"
+                }
+            ]
+        },
+        "paseodelbajo": {
+            "images": [
+                {
+                    "filename": "p1.jpg",
+                    "title": "Titulo p1",
+                    "description": "Descripción p1"
+                },
+                {
+                    "filename": "p2.jpg",
+                    "title": "Titulo P2",
+                    "description": "Descripción P2"
+                }
+            ]
+        },
+        "subtes": {
+            "images": [
+                {
+                    "filename": "s1.jpg",
+                    "title": "Titulo Subtes1",
+                    "description": "Descripción SUBTEs1"
+                },
+                {
+                    "filename": "p2.jpg",
+                    "title": "Titulo SUBTES2",
+                    "description": "Descripción Sub2"
                 }
             ]
         }

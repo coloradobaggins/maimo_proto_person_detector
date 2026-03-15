@@ -13,6 +13,7 @@ export const DEFAULT_CONFIG: AppConfig = {
       VERIFY_MAX_ATTEMPTS: 3,
     },
     detection_profiles: ["idle", "adult", "child", "both"],
+    "default_puzzle_category": "obelisco"
   },
   data: {
     idle: {
@@ -72,4 +73,15 @@ export const DEFAULT_CONFIG: AppConfig = {
       ],
     },
   },
+  puzzles: {
+        obelisco: {
+            images: []
+        },
+        paseodelbajo: {
+            images: []
+        },
+        subtes: {
+            images: []
+        }
+    }
 };
