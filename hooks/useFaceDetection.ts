@@ -44,6 +44,8 @@ export function useFaceDetection(
 ) {
   const [detectionState, setDetectionState] = useState<DetectionState>("idle");
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  
+  const [debugOverride, setDebugOverride] = useState<DetectionState | null>(null);
 
   const { 
     DETECTION_INTERVAL_MS,
@@ -158,5 +160,17 @@ export function useFaceDetection(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady, isLoaded]);
 
-  return { detectionState, canvasRef };
+  // Exponer setter en desarrollo
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      (window as any).__setDetectionState = (state: DetectionState | null) => {
+        console.log(`🧪 Override detectionState: ${state}`);
+        setDebugOverride(state);
+      };
+    }
+  }, []);
+
+  const finalState = debugOverride ?? detectionState
+  return { detectionState: finalState, canvasRef };
+  //return { detectionState, canvasRef };
 }
