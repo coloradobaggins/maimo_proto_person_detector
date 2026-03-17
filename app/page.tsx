@@ -76,6 +76,7 @@ export default function Home() {
 
   // ── Mac/AdultApp: adulto selecciona categoría ──────────────────────────────────────
   const handleCategorySelect = useCallback((category: PuzzleCategory) => {
+    console.log(`Categoria seleccionada por el adulto: ${category}`);
     setActiveCategory(category);
 
     if(!puzzleActive) {
@@ -109,7 +110,17 @@ export default function Home() {
 
     // Notebook/childApp escucha
     onCategorySelected: APP_MODE === "notebook" ? setActiveCategory : undefined,
-    onCategoryUpdate: APP_MODE === "notebook" ? setActiveCategory : undefined,
+    //onCategoryUpdate: APP_MODE === "notebook" ? setActiveCategory : undefined,
+    onCategoryUpdate: APP_MODE === "notebook" 
+    ? (category) => {
+        if (!puzzleActive) {
+          setActiveCategory(category);
+        } else {
+          console.log(`Puzzle activo, ignorando category:update`);
+        }
+      }
+    : undefined,
+    
     onCategoryCurrentResponse: APP_MODE === "notebook"
       ? (category) => {
           if (!puzzleActive) setActiveCategory(category);
@@ -222,7 +233,7 @@ export default function Home() {
       )}
 
       {APP_MODE === "mac" && (globalState === "adult" || globalState === "adult-with-child") && (
-        <CategorySlider />
+        <CategorySlider onCategorySelect={handleCategorySelect} />
       )}
 
       {/* Puzzle: solo en modo notebook/childApp cuando hay un niño presente */}
