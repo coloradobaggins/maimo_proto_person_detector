@@ -49,6 +49,12 @@ export default function Home() {
 
   const [puzzleVisible, setPuzzleVisible] = useState(false);
   
+  console.log("config:", config.config.default_puzzle_category);
+  console.log("activeCategory:", activeCategory);
+  console.log("currentCategory:", currentCategory);
+  console.log("puzzleVisible:", puzzleVisible);
+  console.log("currentPuzzleImage:", currentPuzzleImage);
+
   useEffect(() => {
     if (detectionState === "child" || detectionState === "both") {
       setPuzzleVisible(true);
@@ -109,8 +115,20 @@ export default function Home() {
     onCategoryCurrentRequest: APP_MODE === "mac" ? handleCategoryCurrentRequest : undefined,
 
     // Notebook/childApp escucha
-    onCategorySelected: APP_MODE === "notebook" ? setActiveCategory : undefined,
+    //onCategorySelected: APP_MODE === "notebook" ? setActiveCategory : undefined,
     //onCategoryUpdate: APP_MODE === "notebook" ? setActiveCategory : undefined,
+    
+    onCategorySelected: APP_MODE === "notebook"
+      ? (category) => {
+          if (!puzzleActive) {
+            console.log(`Categoría seleccionada desde notebook: ${category}`);
+            setActiveCategory(category);
+          } else {
+            console.log(`Puzzle activo, ignorando category:selected`);
+          }
+        }
+      : undefined,
+    
     onCategoryUpdate: APP_MODE === "notebook" 
     ? (category) => {
         if (!puzzleActive) {
