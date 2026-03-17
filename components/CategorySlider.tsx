@@ -20,6 +20,10 @@ interface Category {
     items: GalleryItem[];
 }
 
+interface CategorySliderProps {
+    onCategorySelect?: (categoryId: string) => void;
+}
+
 // ─── Mock data ────────────────────────────────────────────────────────────────
 
 const MOCK_CATEGORIES: Category[] = [
@@ -104,7 +108,7 @@ const MOCK_CATEGORIES: Category[] = [
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
-export function CategorySlider() {
+export function CategorySlider({ onCategorySelect }: CategorySliderProps) {
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
     const [currentItemIndex, setCurrentItemIndex] = useState(0);
 
@@ -306,6 +310,7 @@ export function CategorySlider() {
                         onClick={() => {
                             setSelectedCategory(category);
                             setCurrentItemIndex(0);
+                            onCategorySelect?.(category.id);
                         }}
                         style={{
                             position: "relative",
