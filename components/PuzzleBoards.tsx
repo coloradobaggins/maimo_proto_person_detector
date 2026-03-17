@@ -61,26 +61,20 @@ export function PuzzleBoard({
   const [showPopup, setShowPopup] = useState(false);
 
   // ── Inicializar piezas mezcladas ───────────────────────────────────────────
-  /*useEffect(() => {
-    const initial = Array.from({ length: TOTAL_PIECES }, (_, i) => ({
-      id: i,
-      placed: false,
-    }));
-    setPieces(shuffleArray(initial));
-    setBoard(Array(TOTAL_PIECES).fill(null));
-    setCompleted(false);
-    setShowPopup(false);
-  }, [category, imageUrl]);*/
 
   // ── Verificar si el puzzle está completo ───────────────────────────────────
   const checkCompleted = useCallback((newBoard: (number | null)[]) => {
+    console.log("board state:", newBoard);
+    console.log("nulls:", newBoard.filter(c => c === null).length);
     const isComplete = newBoard.every((cell, index) => cell === index);
+    console.log("🧩 Check completed:", isComplete, newBoard);
     if (isComplete) {
+      console.log("🎉 Puzzle completado!");
       setCompleted(true);
       setShowPopup(true);
-      onCompleted();
+      //onCompleted();
     }
-  }, [onCompleted]);
+  }, []);
 
   // ── Drag handlers ─────────────────────────────────────────────────────────
   const handleDragStart = (pieceId: number) => {
@@ -138,6 +132,8 @@ export function PuzzleBoard({
       flexShrink: 0,
     };
   };
+
+  console.log(`showPopup: ${showPopup}, completed: ${completed}`);
 
   return (
     <div style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
@@ -236,7 +232,10 @@ export function PuzzleBoard({
             <p style={{ color: "#666", marginBottom: 8 }}>{title}</p>
             <p style={{ color: "#444", fontSize: 14, marginBottom: 24 }}>{description}</p>
             <button
-              onClick={() => setShowPopup(false)}
+              onClick={() => {
+                setShowPopup(false)
+                onCompleted() //Cuando cierra el popup, pasa al proximo nivel
+              }}
               style={{
                 backgroundColor: "#2563eb",
                 color: "white",
