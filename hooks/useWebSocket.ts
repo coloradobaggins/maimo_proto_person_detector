@@ -4,7 +4,8 @@ import { useEffect } from "react";
 import { io } from "socket.io-client";
 import { PuzzleCategory } from "@/types/config";
 
-const NEST_WS_URL = "http://localhost:3001";
+//const NEST_WS_URL = "http://localhost:3001";
+const NEST_WS_URL = `${process.env.NEXT_PUBLIC_NEST_WS_URL}`;
 const ROOM_NAME = "person-detector-app"
 
 interface useWebSocketProps {
@@ -38,6 +39,7 @@ export function useWebSocket({
     onCategoryCurrentResponse,
 }: useWebSocketProps) {
     useEffect(()=> {
+        console.log(`ESTOY USANDO LA NEST_WS_URL: ${NEST_WS_URL} DE PROCESS.ENV`);
 
         // Config que evita repetido errores si no esta levantado el server
         const socket = io(NEST_WS_URL, {

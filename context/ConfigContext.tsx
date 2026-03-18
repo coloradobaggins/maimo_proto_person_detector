@@ -31,7 +31,7 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
 
     // CAPA 1: intentar fetch al servidor NestJS
     try {
-      const response = await fetch("http://localhost:3001/config");
+      const response = await fetch(`${process.env.NEXT_PUBLIC_NEST_WS_URL}${process.env.NEXT_PUBLIC_NEST_PATH_CONFIG}`);
       if (!response.ok) throw new Error(`NestJS respondió con status ${response.status}`);
       const data: AppConfig = await response.json();
       console.log("Config cargada desde server central!");
