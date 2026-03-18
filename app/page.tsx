@@ -51,12 +51,6 @@ export default function Home() {
 
   const puzzleVisibleRef = useRef(puzzleVisible); //PuzzleVisible esta afectado por useWebsockets, los callbacks se crean una sola vez cuando el hook se monta. Queda el valor inicial en false. Creo ref.
   
-  console.log("config:", config.config.default_puzzle_category);
-  console.log("activeCategory:", activeCategory);
-  console.log("currentCategory:", currentCategory);
-  console.log("puzzleVisible:", puzzleVisible);
-  console.log("currentPuzzleImage:", currentPuzzleImage);
-
   useEffect(() => {
     puzzleVisibleRef.current = puzzleVisible;
   }, [puzzleVisible]);

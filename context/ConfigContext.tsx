@@ -35,6 +35,7 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
       if (!response.ok) throw new Error(`NestJS respondió con status ${response.status}`);
       const data: AppConfig = await response.json();
       console.log("Config cargada desde server central!");
+
       setConfig(data);
       setIsLoading(false);
       return;
