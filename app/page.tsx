@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useFaceApi } from "@/hooks/useFaceApi";
 import { useWebcam } from "@/hooks/useWebcam";
 import { useFaceDetection } from "@/hooks/useFaceDetection";
@@ -48,12 +48,18 @@ export default function Home() {
     : `https://picsum.photos/seed/${currentCategory}/400/400`;
 
   const [puzzleVisible, setPuzzleVisible] = useState(false);
+
+  const puzzleVisibleRef = useRef(puzzleVisible); //PuzzleVisible esta afectado por useWebsockets, los callbacks se crean una sola vez cuando el hook se monta. Queda el valor inicial en false. Creo ref.
   
   console.log("config:", config.config.default_puzzle_category);
   console.log("activeCategory:", activeCategory);
   console.log("currentCategory:", currentCategory);
   console.log("puzzleVisible:", puzzleVisible);
   console.log("currentPuzzleImage:", currentPuzzleImage);
+
+  useEffect(() => {
+    puzzleVisibleRef.current = puzzleVisible;
+  }, [puzzleVisible]);
 
   useEffect(() => {
     if (detectionState === "child" || detectionState === "both") {
@@ -120,8 +126,8 @@ export default function Home() {
     
     onCategorySelected: APP_MODE === "notebook"
       ? (category) => {
-          if (!puzzleActive) {
-            console.log(`Categoría seleccionada desde notebook: ${category}`);
+          console.log("🎯 category:selected, puzzleVisibleRef:", puzzleVisibleRef.current);
+          if (!puzzleVisibleRef.current) {
             setActiveCategory(category);
           } else {
             console.log(`Puzzle activo, ignorando category:selected`);
@@ -131,7 +137,7 @@ export default function Home() {
     
     onCategoryUpdate: APP_MODE === "notebook" 
     ? (category) => {
-        if (!puzzleActive) {
+        if (!puzzleVisibleRef.current) {
           setActiveCategory(category);
         } else {
           console.log(`Puzzle activo, ignorando category:update`);
