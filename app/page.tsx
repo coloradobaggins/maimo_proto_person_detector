@@ -10,6 +10,7 @@ import { useNotebookSync } from "@/hooks/useNotebookSync";
 import { PuzzleCategory, PUZZLE_CATEGORIES } from "@/types/config";
 import { PuzzleBoard } from "@/components/PuzzleBoards";
 import { CategorySlider } from "@/components/CategorySlider";
+import { IdleView } from "@/components/IdleView";
 
 const LANG = "es";
 const APP_MODE = process.env.NEXT_PUBLIC_APP_MODE || "mac";
@@ -162,20 +163,20 @@ export default function Home() {
 
   return (
     <main>
-      <h1>Face API — {APP_MODE === "mac" ? "Mac" : "Notebook"}</h1>
+      {/*<h1>Face API — {APP_MODE === "mac" ? "Mac" : "Notebook"}</h1>*/}
       {errorWebcam && <p>Error con la webcam: {errorWebcam.message}</p>}
       {!isLoaded && <p>Cargando modelos...</p>}
-      {isLoaded && <p>Modelos cargados.</p>}
-      {isLoaded && isReady && <p>Listo para detectar people</p>}
+      {/*isLoaded && <p>Modelos cargados.</p>*/}
+      {/*isLoaded && isReady && <p>Listo para detectar people</p>*/}
 
       {/* Toggle video debug */}
-      <label style={{ display: "flex", alignItems: "center", gap: 8, margin: "12px 0" }}>
+      {/*<label style={{ display: "flex", alignItems: "center", gap: 8, margin: "12px 0" }}>
         <input type="checkbox"
         checked={isDebug}
         onChange={e => setIsDebug(e.target.checked)}
         />
         Video debug
-      </label>
+      </label>/*}
 
       {/* Video + canvas superpuesto, visibles solo en debug */}
       <div style={{ position: "absolute", width: 640, height: 480, visibility: isDebug ? "visible" : "hidden" }}>
@@ -208,8 +209,8 @@ export default function Home() {
           <p>Estado local: {detectionState}</p>
           <p>Estado global: {globalState}</p>
           <p>Categoría activa: {activeCategory ?? defaultCategory}</p>
-          {APP_MODE === "mac" && <p>Niño en notebook: {childPresent ? "sí" : "no"}</p>}
-          {APP_MODE === "mac" && <p>Puzzle activo: {puzzleActive ? "sí" : "no"}</p>}
+          {/*APP_MODE === "mac" && <p>Niño en notebook: {childPresent ? "sí" : "no"}</p>*/}
+          {/*APP_MODE === "mac" && <p>Puzzle activo: {puzzleActive ? "sí" : "no"}</p>*/}
         </>
       )}
 
@@ -237,22 +238,24 @@ export default function Home() {
         </div>
       )}
 
-      <p>Estado: {detectionState}</p>
-      {APP_MODE === "mac" && (
+      {/*<p>Estado: {detectionState}</p>*/}
+      {/*APP_MODE === "mac" && (
         <p>Niño en notebook: {childPresent ? "sí" : "no"}</p>
-      )}
+      )*/}
 
       {/* Contenido del perfil activo: */}
-      {activeContent && (
+      {/*activeContent && (
         <div style={{marginTop: 32}}>
           <h2>{activeContent.title}</h2>
           <p>{activeContent.description}</p>
         </div>
-      )}
+      )*/}
 
       {APP_MODE === "mac" && (globalState === "adult" || globalState === "adult-with-child") && (
         <CategorySlider onCategorySelect={handleCategorySelect} />
       )}
+
+      {globalState === "idle" && <IdleView mode={APP_MODE as "mac" | "notebook"} />}
 
       {/* Puzzle: solo en modo notebook/childApp cuando hay un niño presente */}
       {APP_MODE === "notebook" &&

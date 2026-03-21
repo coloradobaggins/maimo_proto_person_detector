@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import gsap from "gsap";
+import ReactMarkdown from "react-markdown";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -36,7 +37,7 @@ const MOCK_CATEGORIES: Category[] = [
             {
                 id: 1,
                 title: "El León",
-                description: "El león es uno de los animales más imponentes de la naturaleza. Conocido como el rey de la selva, vive en manadas llamadas 'pride' y es el único felino verdaderamente social. Su rugido puede escucharse hasta 8 kilómetros de distancia.",
+                description: "El león es uno de los animales más **imponentes** de la naturaleza.\n\n## Características\n\nConocido como el rey de la selva, vive en manadas llamadas *pride*.\n\n- Rugido de hasta 8km\n- Único felino social\n- Vive en África",
                 tags: ["Felino", "África", "Carnívoro", "Mamífero"],
                 mainImage: "https://picsum.photos/seed/lion/800/600",
                 thumbImage: "https://picsum.photos/seed/lion2/200/150",
@@ -254,6 +255,7 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
                         backgroundColor: "#1a1a1a",
                         padding: "80px 40px 80px",
                         overflowY: "auto",
+                        height: "100vh",
                         color: "white",
                     }}>
                         <h2 style={{ fontSize: 32, marginBottom: 16 }}>{currentItem.title}</h2>
@@ -270,9 +272,39 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
                                 </span>
                             ))}
                         </div>
-                        <p style={{ color: "#bbb", lineHeight: 1.8, fontSize: 15, marginBottom: 24 }}>
+                        {/*<p style={{ color: "#bbb", lineHeight: 1.8, fontSize: 15, marginBottom: 24 }}>*/}
+                            {/*currentItem.description*/}
+                        {/*</p>*/}
+                        <ReactMarkdown
+                            components={{
+                                p: ({ children }) => (
+                                <p style={{ color: "#bbb", lineHeight: 1.8, fontSize: 15, marginBottom: 16 }}>
+                                    {children}
+                                </p>
+                                ),
+                                h1: ({ children }) => (
+                                <h1 style={{ color: "white", fontSize: 28, marginBottom: 12, marginTop: 24 }}>
+                                    {children}
+                                </h1>
+                                ),
+                                h2: ({ children }) => (
+                                <h2 style={{ color: "white", fontSize: 22, marginBottom: 10, marginTop: 20 }}>
+                                    {children}
+                                </h2>
+                                ),
+                                strong: ({ children }) => (
+                                <strong style={{ color: "white", fontWeight: 700 }}>{children}</strong>
+                                ),
+                                ul: ({ children }) => (
+                                <ul style={{ color: "#bbb", paddingLeft: 20, marginBottom: 16 }}>{children}</ul>
+                                ),
+                                li: ({ children }) => (
+                                <li style={{ marginBottom: 6 }}>{children}</li>
+                                ),
+                            }}
+                            >
                             {currentItem.description}
-                        </p>
+                        </ReactMarkdown>
                         {currentItem.thumbImage && (
                             <img
                                 src={currentItem.thumbImage}

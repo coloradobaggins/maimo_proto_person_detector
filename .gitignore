@@ -26,3 +26,5 @@ pnpm-debug.log*
 next-env.d.ts
 
 /public/*.jpg
+*.jpg
+.DS_Store

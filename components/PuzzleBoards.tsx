@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { PuzzleCategory } from "@/types/config";
+import { PuzzleIntro } from "./PuzzleIntro";
+import gsap from "gsap";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -45,34 +47,36 @@ export function PuzzleBoard({
   description,
   onCompleted,
 }: PuzzleBoardProps) {
-  //const [pieces, setPieces] = useState<Piece[]>([]);
-  const [pieces, setPieces] = useState<Piece[]>(() => {
+  const [pieces, setPieces] = useState<Piece[]>([]);
+  /*const [pieces, setPieces] = useState<Piece[]>(() => {
     const initial = Array.from({ length: TOTAL_PIECES }, (_, i) => ({
       id: i,
       placed: false,
     }));
     return shuffleArray(initial);
   });
+  */
   const [board, setBoard] = useState<(number | null)[]>(
     Array(TOTAL_PIECES).fill(null)
   );
   const [draggingId, setDraggingId] = useState<number | null>(null);
   const [completed, setCompleted] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const [gamePhase, setGamePhase] = useState<"intro" | "playing">("intro");
+  const boardRef = useRef<HTMLDivElement>(null);
+  const boardPiecesRef = useRef<(HTMLDivElement | null)[]>([]);
+  const [showCompleteImage, setShowCompleteImage] = useState(false);
 
   // ── Inicializar piezas mezcladas ───────────────────────────────────────────
 
   // ── Verificar si el puzzle está completo ───────────────────────────────────
   const checkCompleted = useCallback((newBoard: (number | null)[]) => {
-    console.log("board state:", newBoard);
-    console.log("nulls:", newBoard.filter(c => c === null).length);
     const isComplete = newBoard.every((cell, index) => cell === index);
-    console.log("🧩 Check completed:", isComplete, newBoard);
     if (isComplete) {
       console.log("🎉 Puzzle completado!");
       setCompleted(true);
-      setShowPopup(true);
-      //onCompleted();
+      setShowCompleteImage(true);
+      setTimeout(() => setShowPopup(true), 2800);
     }
   }, []);
 
@@ -113,6 +117,12 @@ export function PuzzleBoard({
     e.preventDefault();
   };
 
+  const handleIntroComplete = (shuffledOrder: number[]) => {
+    // Recibimos el orden mezclado de la intro y lo aplicamos
+    setPieces(shuffledOrder.map(id => ({ id, placed: false })));
+    setGamePhase("playing");
+  };
+
   // ── Piezas disponibles (no colocadas correctamente) ────────────────────────
   const availablePieces = pieces.filter(p => !p.placed);
 
@@ -134,6 +144,15 @@ export function PuzzleBoard({
   };
 
   console.log(`showPopup: ${showPopup}, completed: ${completed}`);
+
+  if (gamePhase === "intro") {
+    return (
+      <PuzzleIntro
+        imageUrl={imageUrl}
+        onIntroComplete={handleIntroComplete}
+      />
+    );
+  }
 
   return (
     <div style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
@@ -177,7 +196,23 @@ export function PuzzleBoard({
           <p style={{ fontSize: 12, color: "#999", marginBottom: 8 }}>
             Armá el rompecabezas
           </p>
-          <div style={{
+          {showCompleteImage ? (
+            <div
+              ref={boardRef}
+              style={{
+                width: GRID_SIZE * PIECE_SIZE_LARGE + 24,
+                height: GRID_SIZE * PIECE_SIZE_LARGE + 24,
+                backgroundImage: `url(${imageUrl})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                borderRadius: 8,
+                animation: "zoomIn 0.6s ease forwards",
+              }}
+            />
+          ) : (
+          <div 
+            ref={boardRef}
+            style={{
             display: "grid",
             gridTemplateColumns: `repeat(${GRID_SIZE}, ${PIECE_SIZE_LARGE}px)`,
             gap: 4,
@@ -188,6 +223,7 @@ export function PuzzleBoard({
             {board.map((cellContent, cellIndex) => (
               <div
                 key={cellIndex}
+                ref={el => { boardPiecesRef.current[cellIndex] = el; }}
                 onDragOver={handleDragOver}
                 onDrop={() => handleDropOnBoard(cellIndex)}
                 style={{
@@ -205,6 +241,7 @@ export function PuzzleBoard({
               </div>
             ))}
           </div>
+        )}
         </div>
       </div>
 
@@ -213,7 +250,7 @@ export function PuzzleBoard({
         <div style={{
           position: "fixed",
           inset: 0,
-          backgroundColor: "rgba(0,0,0,0.6)",
+          backgroundColor: "rgba(0,0,0,0.4)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
