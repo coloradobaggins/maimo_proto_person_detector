@@ -2,29 +2,8 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import gsap from "gsap";
-import ReactMarkdown from "react-markdown";
+import { DetailView, GalleryItem, Category } from "@/components/DetailView";
 
-// ─── Tipos ────────────────────────────────────────────────────────────────────
-
-interface GalleryItem {
-    id: number;
-    title: string;
-    description: string;
-    tags: string[];
-    mainImage: string;
-    thumbImage?: string;
-}
-
-interface Category {
-    id: string;
-    title: string;
-    coverImage: string;
-    items: GalleryItem[];
-}
-
-interface CategorySliderProps {
-    onCategorySelect?: (categoryId: string) => void;
-}
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
 
@@ -32,23 +11,33 @@ const MOCK_CATEGORIES: Category[] = [
     {
         id: "obelisco",
         title: "El Obelisco",
-        coverImage: "https://picsum.photos/seed/animals/800/600",
+        coverImage: "/adult/obelisco/1-29.jpg",
         items: [
             {
                 id: 1,
-                title: "El León",
-                description: "El león es uno de los animales más **imponentes** de la naturaleza.\n\n## Características\n\nConocido como el rey de la selva, vive en manadas llamadas *pride*.\n\n- Rugido de hasta 8km\n- Único felino social\n- Vive en África",
+                title: "Construccion",
+                description: "El <b>Obelisco de Buenos Aires</b> es un monumento histórico, considerado ícono de Buenos Aires, capital de Argentina.<br /><br /> Fue construido en 1936 con motivo del cuarto centenario de la primera fundación de Buenos Aires por Pedro de Mendoza. La obra es autoría del arquitecto argentino Alberto Prebisch y la construcción estuvo a cargo del consorcio alemán GEOPÉ-Siemens Bauunion-Grün & Bilfinger. Tiene una altura de 67,5 metros, de los cuales 63 son desde la base de 7x7 m hasta el inicio del ápice de 3,50x3,50 m, culminando con una punta del estilo Roma de unos 40 cm. Tiene una sola puerta de entrada y en su cúspide hay cuatro ventanas.<br /><br /> Se encuentra ubicado en la plaza de la República, en la intersección de las avenidas Corrientes y 9 de Julio, en el barrio de San Nicolás en Buenos Aires.",
                 tags: ["Felino", "África", "Carnívoro", "Mamífero"],
-                mainImage: "https://picsum.photos/seed/lion/800/600",
-                thumbImage: "https://picsum.photos/seed/lion2/200/150",
+                mainImage: "/adult/obelisco/006.jpg",
+                thumbImage: "adult/obelisco/1.webp",
+                images: [
+                    { url: "/adult/obelisco/gallery/g1.jpg", caption: "El león descansando" },
+                    { url: "/adult/obelisco/gallery/g2.jpg", caption: "La manada al atardecer" },
+                    { url: "/adult/obelisco/gallery/g3.webp", caption: "El rugido del rey" },
+                ],
             },
             {
                 id: 2,
-                title: "El Elefante",
+                title: "Actualidad",
                 description: "El elefante africano es el animal terrestre más grande del mundo. Posee una memoria extraordinaria y una inteligencia comparable a la de los primates. Vive en grupos familiares liderados por la hembra más anciana.",
                 tags: ["Mamífero", "África", "Herbívoro", "Endangered"],
                 mainImage: "https://picsum.photos/seed/elephant/800/600",
                 thumbImage: "https://picsum.photos/seed/elephant2/200/150",
+                images: [
+                    { url: "/adult/obelisco/gallery/g4.png", caption: "El león descansando" },
+                    { url: "/adult/obelisco/gallery/g5.jpg", caption: "La manada al atardecer" },
+                    { url: "/adult/obelisco/gallery/g6.webp", caption: "El rugido del rey" },
+                ],
             },
             {
                 id: 3,
@@ -196,172 +185,20 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
     if (selectedCategory) {
         const currentItem = selectedCategory.items[currentItemIndex];
         const total = selectedCategory.items.length;
-
+        
         return (
-            <div style={{
-                position: "fixed",
-                inset: 0,
-                backgroundColor: "#111",
-                display: "flex",
-                flexDirection: "column",
-            }}>
-                {/* Header */}
-                <div style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "16px 24px",
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    zIndex: 10,
-                    background: "linear-gradient(to bottom, rgba(0,0,0,0.6), transparent)",
-                }}>
-                    <span style={{ color: "#aaa", fontSize: 14 }}>
-                        {selectedCategory.title} — {currentItemIndex + 1} / {total}
-                    </span>
-                    <button
-                        onClick={() => setSelectedCategory(null)}
-                        style={{
-                            background: "rgba(255,255,255,0.15)",
-                            border: "none",
-                            color: "white",
-                            width: 36,
-                            height: 36,
-                            borderRadius: "50%",
-                            cursor: "pointer",
-                            fontSize: 18,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                        }}
-                    >
-                        ✕
-                    </button>
-                </div>
-
-                {/* Contenido */}
-                <div style={{ display: "flex", flex: 1 }}>
-                    <div style={{
-                        width: "50%",
-                        backgroundImage: `url(${currentItem.mainImage})`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                    }} />
-
-                    <div style={{
-                        width: "50%",
-                        backgroundColor: "#1a1a1a",
-                        padding: "80px 40px 80px",
-                        overflowY: "auto",
-                        height: "100vh",
-                        color: "white",
-                    }}>
-                        <h2 style={{ fontSize: 32, marginBottom: 16 }}>{currentItem.title}</h2>
-                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 24 }}>
-                            {currentItem.tags.map(tag => (
-                                <span key={tag} style={{
-                                    backgroundColor: "rgba(255,255,255,0.1)",
-                                    padding: "4px 12px",
-                                    borderRadius: 20,
-                                    fontSize: 12,
-                                    color: "#ccc",
-                                }}>
-                                    {tag}
-                                </span>
-                            ))}
-                        </div>
-                        {/*<p style={{ color: "#bbb", lineHeight: 1.8, fontSize: 15, marginBottom: 24 }}>*/}
-                            {/*currentItem.description*/}
-                        {/*</p>*/}
-                        <ReactMarkdown
-                            components={{
-                                p: ({ children }) => (
-                                <p style={{ color: "#bbb", lineHeight: 1.8, fontSize: 15, marginBottom: 16 }}>
-                                    {children}
-                                </p>
-                                ),
-                                h1: ({ children }) => (
-                                <h1 style={{ color: "white", fontSize: 28, marginBottom: 12, marginTop: 24 }}>
-                                    {children}
-                                </h1>
-                                ),
-                                h2: ({ children }) => (
-                                <h2 style={{ color: "white", fontSize: 22, marginBottom: 10, marginTop: 20 }}>
-                                    {children}
-                                </h2>
-                                ),
-                                strong: ({ children }) => (
-                                <strong style={{ color: "white", fontWeight: 700 }}>{children}</strong>
-                                ),
-                                ul: ({ children }) => (
-                                <ul style={{ color: "#bbb", paddingLeft: 20, marginBottom: 16 }}>{children}</ul>
-                                ),
-                                li: ({ children }) => (
-                                <li style={{ marginBottom: 6 }}>{children}</li>
-                                ),
-                            }}
-                            >
-                            {currentItem.description}
-                        </ReactMarkdown>
-                        {currentItem.thumbImage && (
-                            <img
-                                src={currentItem.thumbImage}
-                                alt={currentItem.title}
-                                style={{
-                                    width: "100%",
-                                    borderRadius: 8,
-                                    objectFit: "cover",
-                                    maxHeight: 200,
-                                }}
-                            />
-                        )}
-                    </div>
-                </div>
-
-                {/* Navegación */}
-                <div style={{
-                    position: "absolute",
-                    bottom: 24,
-                    left: 0,
-                    right: 0,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    padding: "0 24px",
-                }}>
-                    <button
-                        onClick={() => setCurrentItemIndex(i => Math.max(0, i - 1))}
-                        disabled={currentItemIndex === 0}
-                        style={{
-                            background: currentItemIndex === 0 ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.15)",
-                            border: "none",
-                            color: currentItemIndex === 0 ? "#444" : "white",
-                            padding: "12px 24px",
-                            borderRadius: 8,
-                            cursor: currentItemIndex === 0 ? "not-allowed" : "pointer",
-                            fontSize: 16,
-                        }}
-                    >
-                        ← Anterior
-                    </button>
-                    <button
-                        onClick={() => setCurrentItemIndex(i => Math.min(total - 1, i + 1))}
-                        disabled={currentItemIndex === total - 1}
-                        style={{
-                            background: currentItemIndex === total - 1 ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.15)",
-                            border: "none",
-                            color: currentItemIndex === total - 1 ? "#444" : "white",
-                            padding: "12px 24px",
-                            borderRadius: 8,
-                            cursor: currentItemIndex === total - 1 ? "not-allowed" : "pointer",
-                            fontSize: 16,
-                        }}
-                    >
-                        Siguiente →
-                    </button>
-                </div>
-            </div>
+            <DetailView
+            category={selectedCategory}
+            currentItem={currentItem}
+            currentIndex={currentItemIndex}
+            total={total}
+            onClose={() => {
+                setSelectedCategory(null);
+                setCurrentItemIndex(0);
+            }}
+            onPrev={() => setCurrentItemIndex(i => Math.max(0, i - 1))}
+            onNext={() => setCurrentItemIndex(i => Math.min(total - 1, i + 1))}
+            />
         );
     }
 

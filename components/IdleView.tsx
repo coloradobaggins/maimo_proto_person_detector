@@ -151,8 +151,8 @@ function AdultIdle() {
                     ref={el => { particlesRef.current[i] = el; }}
                     style={{
                         position: "absolute",
-                        width: 2,
-                        height: 2,
+                        width: "2px",
+                        height: "2px",
                         borderRadius: "50%",
                         backgroundColor: "rgba(255,255,255,0.6)",
                         left: p.left,

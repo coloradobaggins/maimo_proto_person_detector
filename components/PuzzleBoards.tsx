@@ -3,7 +3,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { PuzzleCategory } from "@/types/config";
 import { PuzzleIntro } from "./PuzzleIntro";
-import gsap from "gsap";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
