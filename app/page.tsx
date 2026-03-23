@@ -11,6 +11,7 @@ import { PuzzleCategory, PUZZLE_CATEGORIES } from "@/types/config";
 import { PuzzleBoard } from "@/components/PuzzleBoards";
 import { CategorySlider } from "@/components/CategorySlider";
 import { IdleView } from "@/components/IdleView";
+import { ChildGreeting } from "@/components/ChildGreetings";
 
 const LANG = "es";
 const APP_MODE = process.env.NEXT_PUBLIC_APP_MODE || "mac";
@@ -47,24 +48,46 @@ export default function Home() {
   const puzzleImageUrl = currentPuzzleImage 
     ? `/puzzles/${currentCategory}/${currentPuzzleImage.filename}`
     : `https://picsum.photos/seed/${currentCategory}/400/400`;
+  
 
-  const [puzzleVisible, setPuzzleVisible] = useState(false);
+  type NotebookPhase = "idle" | "greeting" | "puzzle";
+  const [notebookPhase, setNotebookPhase] = useState<NotebookPhase>("idle");
 
-  const puzzleVisibleRef = useRef(puzzleVisible); //PuzzleVisible esta afectado por useWebsockets, los callbacks se crean una sola vez cuando el hook se monta. Queda el valor inicial en false. Creo ref.
+  const notebookPhaseRef = useRef<NotebookPhase>("idle");
+
+  //const [childPhase, setChildPhase] = useState<"idle" | "greeting" | "puzzle">("idle");
+
+
+  useEffect(() => {
+    notebookPhaseRef.current = notebookPhase;
+  }, [notebookPhase]);
   
   useEffect(() => {
-    puzzleVisibleRef.current = puzzleVisible;
-  }, [puzzleVisible]);
+    if (APP_MODE !== "notebook") return;
+    
+    console.log("detectionState cambió:", detectionState, "notebookPhase:", notebookPhase);
+  
+    if (detectionState === "child" || detectionState === "both") {
+      setNotebookPhase(prev => {
+        console.log("prev:", prev);
+        return prev === "idle" ? "greeting" : prev;
+      });
+    }
+  
+    if (detectionState === "idle") {
+      setNotebookPhase("idle");
+    }
+  }, [detectionState]);
+
+  const [showPuzzle, setShowPuzzle] = useState(false);
 
   useEffect(() => {
-    if (detectionState === "child" || detectionState === "both") {
-      setPuzzleVisible(true);
+    if (notebookPhase === "puzzle") {
+      setTimeout(() => setShowPuzzle(true), 100);
+    } else {
+      setShowPuzzle(false);
     }
-    if (detectionState === "idle") {
-      setPuzzleVisible(false);
-    }
-    // Si queda solo el adulto, el puzzle se mantiene (no hacemos nada)
-  }, [detectionState]);
+  }, [notebookPhase]);
 
   // ── Estado global ──────────────────────────────────────────────────────────
   const globalState = (()=>{
@@ -121,24 +144,24 @@ export default function Home() {
     
     onCategorySelected: APP_MODE === "notebook"
       ? (category) => {
-          console.log("🎯 category:selected, puzzleVisibleRef:", puzzleVisibleRef.current);
-          if (!puzzleVisibleRef.current) {
+          console.log("🎯 category:selected, notebookPhase:", notebookPhaseRef.current);
+          if (notebookPhaseRef.current !== "puzzle") {
             setActiveCategory(category);
           } else {
-            console.log(`Puzzle activo, ignorando category:selected`);
+            console.log("Puzzle activo, ignorando category:selected");
           }
         }
       : undefined,
     
-    onCategoryUpdate: APP_MODE === "notebook" 
-    ? (category) => {
-        if (!puzzleVisibleRef.current) {
-          setActiveCategory(category);
-        } else {
-          console.log(`Puzzle activo, ignorando category:update`);
-        }
-      }
-    : undefined,
+      onCategoryUpdate: APP_MODE === "notebook"
+        ? (category) => {
+            if (notebookPhaseRef.current !== "puzzle") {
+              setActiveCategory(category);
+            } else {
+              console.log("Puzzle activo, ignorando category:update");
+            }
+          }
+        : undefined,
     
     onCategoryCurrentResponse: APP_MODE === "notebook"
       ? (category) => {
@@ -258,18 +281,40 @@ export default function Home() {
       {globalState === "idle" && <IdleView mode={APP_MODE as "mac" | "notebook"} />}
 
       {/* Puzzle: solo en modo notebook/childApp cuando hay un niño presente */}
-      {APP_MODE === "notebook" &&
-        puzzleVisible &&
-        currentPuzzleImage && (
-        <PuzzleBoard
-          key={`${currentCategory}-${currentImageIndex}`} // forzar remount al cambiar imagen
-          category={currentCategory}
-          imageUrl={puzzleImageUrl}
-          title={currentPuzzleImage.title}
-          description={currentPuzzleImage.description}
-          onCompleted={handlePuzzleCompleted}
-        />
-      )}
+      {APP_MODE === "notebook" && (
+  <>
+    {/* Pantalla negra pura */}
+    {notebookPhase === "idle" && (
+      <div style={{
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "#000",
+      }} />
+    )}
+
+    {/* Robot asomándose */}
+    {notebookPhase === "greeting" && (
+      <ChildGreeting onTap={() => setNotebookPhase("puzzle")} />
+    )}
+
+    {/* Puzzle */}
+        {notebookPhase === "puzzle" && currentPuzzleImage && (
+          <div style={{
+            opacity: showPuzzle ? 1 : 0,
+            transition: "opacity 0.6s ease",
+          }}>
+            <PuzzleBoard
+              key={`${currentCategory}-${currentImageIndex}`}
+              category={currentCategory}
+              imageUrl={puzzleImageUrl}
+              title={currentPuzzleImage.title}
+              description={currentPuzzleImage.description}
+              onCompleted={handlePuzzleCompleted}
+            />
+          </div>
+        )}
+      </>
+    )}
     </main>
   );
 }
