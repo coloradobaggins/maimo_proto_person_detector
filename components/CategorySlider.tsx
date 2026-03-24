@@ -21,7 +21,7 @@ const MOCK_CATEGORIES: Category[] = [
                 mainImage: "/adult/obelisco/006.jpg",
                 thumbImage: "adult/obelisco/1.webp",
                 images: [
-                    { url: "/adult/obelisco/gallery/g1.jpg", caption: "El león descansando" },
+                    { url: "/adult/obelisco/gallery/g1.jpg", caption: "El Obelisco" },
                     { url: "/adult/obelisco/gallery/g2.jpg", caption: "La manada al atardecer" },
                     { url: "/adult/obelisco/gallery/g3.webp", caption: "El rugido del rey" },
                 ],
@@ -50,14 +50,14 @@ const MOCK_CATEGORIES: Category[] = [
         ],
     },
     {
-        id: "paseodelbajo",
-        title: "Paseo del Bajo",
-        coverImage: "https://picsum.photos/seed/space/800/600",
+        id: "palaciobarolo",
+        title: "Palacio Barolo",
+        coverImage: "/adult/barolo/palacio-barolo-ve-mayo-street-buenos-aires-argentina.jpg",
         items: [
             {
                 id: 1,
-                title: "La Luna",
-                description: "La Luna es el único satélite natural de la Tierra y el quinto satélite más grande del sistema solar. Su influencia gravitacional produce las mareas oceánicas. Fue visitada por primera vez por el ser humano en 1969.",
+                title: "El Palacio",
+                description: "El Palacio Barolo fue construido por el arquitecto italiano Mario Palanti, a pedido del empresario Luigi Barolo. Fue inaugurado en 1923 y se convirtió en el edificio más alto de Sudamérica (incluso superó hasta cuatro veces las reglamentaciones de altura llegando su coronamiento a los cien metros sobre Av. de Mayo), hasta ocho años después cuando se construyó el Kavanagh. <br /><br />El Barolo tiene otras características que lo hicieron y hacen especial.. Por ejemplo, fue la primera edificación de hormigón armado de casi 100 mts. de altura en la Ciudad. Además, está rematado por un faro giratorio de 300.000 bujías en el piso 22. En 1923, ese faro transmitió con sus luces el resultado de la pelea por el título mundial de boxeo entre Luis Angel Firpo y Jack Dempsey en Nueva York. <br /><br />Palanti también fue el creador del Palacio Salvo en Montevideo (Uruguay), con similares características de construcción que el Barolo. Estos dos edificios rioplatenses fueron verdaderos pioneros ya que probaron el uso vertical del hormigón consiguiendo que cada récord local conformara, simultáneamente, un récord internacional.",
                 tags: ["Satélite", "NASA", "Exploración"],
                 mainImage: "https://picsum.photos/seed/moon/800/600",
                 thumbImage: "https://picsum.photos/seed/moon2/200/150",
@@ -74,8 +74,8 @@ const MOCK_CATEGORIES: Category[] = [
     },
     {
         id: "Subtes",
-        title: "La Ciudad",
-        coverImage: "https://picsum.photos/seed/city/800/600",
+        title: "Subtes de Buenos Aires",
+        coverImage: "/adult/subtes/estacion-plaza-mayo-inauguracion-1913jpg.webp",
         items: [
             {
                 id: 1,
