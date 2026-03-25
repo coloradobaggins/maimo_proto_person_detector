@@ -123,35 +123,52 @@ export function ImageGallery({ images, initialIndex = 0, onClose }: ImageGallery
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          maxWidth: "70%",
-          maxHeight: "80vh",
+          width: "70%",
           cursor: "grab",
           userSelect: "none",
         }}
       >
-        <img
-          src={currentImage.url}
-          alt={currentImage.caption ?? ""}
-          draggable={false}
-          style={{
-            maxWidth: "100%",
-            maxHeight: "65vh",
-            objectFit: "contain",
-            borderRadius: 8,
-            pointerEvents: "none",
-          }}
-        />
-        {currentImage.caption && (
-          <p style={{
-            color: "#aaa",
-            fontSize: 14,
-            marginTop: 16,
-            textAlign: "center",
-            letterSpacing: 0.5,
-          }}>
-            {currentImage.caption}
-          </p>
-        )}
+        {/* Contenedor de altura fija para la imagen */}
+        <div style={{
+          width: "100%",
+          height: "60vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}>
+          <img
+            src={currentImage.url}
+            alt={currentImage.caption ?? ""}
+            draggable={false}
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain",
+              borderRadius: 8,
+              pointerEvents: "none",
+            }}
+          />
+        </div>
+
+        {/* Caption de altura fija */}
+        <div style={{
+          height: 40,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}>
+          {currentImage.caption && (
+            <p style={{
+              color: "#aaa",
+              fontSize: 14,
+              textAlign: "center",
+              letterSpacing: 0.5,
+              margin: 0,
+            }}>
+              {currentImage.caption}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Puntitos indicadores */}
