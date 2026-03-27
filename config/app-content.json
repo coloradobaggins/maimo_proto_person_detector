@@ -1,0 +1,121 @@
+{
+    "categories": [
+        {
+            "id": "obelisco",
+            "title": "El Obelisco",
+            "coverImage": "/adult/obelisco/1-29.jpg",
+            "items": [
+                {
+                    "id": 1,
+                    "title": "Construccion",
+                    "description": "El <b>Obelisco de Buenos Aires</b> es un monumento histórico, considerado ícono de Buenos Aires, capital de Argentina.<br /><br /> Fue construido en 1936 con motivo del cuarto centenario de la primera fundación de Buenos Aires por Pedro de Mendoza. La obra es autoría del arquitecto argentino Alberto Prebisch y la construcción estuvo a cargo del consorcio alemán GEOPÉ-Siemens Bauunion-Grün & Bilfinger. Tiene una altura de 67,5 metros, de los cuales 63 son desde la base de 7x7 m hasta el inicio del ápice de 3,50x3,50 m, culminando con una punta del estilo Roma de unos 40 cm. Tiene una sola puerta de entrada y en su cúspide hay cuatro ventanas.<br /><br /> Se encuentra ubicado en la plaza de la República, en la intersección de las avenidas Corrientes y 9 de Julio, en el barrio de San Nicolás en Buenos Aires.",
+                    "tags": [
+                        "Felino",
+                        "África",
+                        "Carnívoro",
+                        "Mamífero"
+                    ],
+                    "mainImage": "/adult/obelisco/006.jpg",
+                    "thumbImage": "adult/obelisco/1.webp",
+                    "images": [
+                        { "url": "/adult/obelisco/gallery/g1.jpg", "caption": "El Obelisco"},
+                        { "url": "/adult/obelisco/gallery/g2.jpg", "caption": "La manada al atardecer"},
+                        { "url": "/adult/obelisco/gallery/g3.webp", "caption": "El rugido del rey"}
+                    ]
+                },
+                {
+                    "id": 2,
+                    "title": "Actualidad",
+                    "description": "El elefante africano es el animal terrestre más grande del mundo. Posee una memoria extraordinaria y una inteligencia comparable a la de los primates. Vive en grupos familiares liderados por la hembra más anciana.",
+                    "tags": [
+                        "Mamífero",
+                        "África",
+                        "Herbívoro",
+                        "Endangered"
+                    ],
+                    "mainImage": "https://picsum.photos/seed/elephant/800/600",
+                    "thumbImage": "https://picsum.photos/seed/elephant2/200/150",
+                    "images": [
+                        { "url": "/adult/obelisco/gallery/g4.png", "caption": "El león descansando"},
+                        { "url": "/adult/obelisco/gallery/g5.jpg", "caption": "La manada al atardecer"},
+                        { "url": "/adult/obelisco/gallery/g6.webp", "caption": "El rugido del rey"}
+                    ]
+                },
+                {
+                    "id": 3,
+                    "title": "El Delfín",
+                    "description": "Los delfines son mamíferos marinos altamente inteligentes. Se comunican mediante un sofisticado sistema de clics y silbidos. Son conocidos por su comportamiento social y su capacidad de aprendizaje.",
+                    "tags": [
+                        "Marino",
+                        "Mamífero",
+                        "Inteligente"
+                    ],
+                    "mainImage": "https://picsum.photos/seed/dolphin/800/600",
+                    "thumbImage": "https://picsum.photos/seed/dolphin2/200/150"
+                }
+            ]
+        },
+        {
+            "id": "palaciobarolo",
+            "title": "Palacio Barolo",
+            "coverImage": "/adult/barolo/palacio-barolo-ve-mayo-street-buenos-aires-argentina.jpg",
+            "items": [
+                {
+                    "id": 1,
+                    "title": "El Palacio",
+                    "description": "El Palacio Barolo fue construido por el arquitecto italiano Mario Palanti, a pedido del empresario Luigi Barolo. Fue inaugurado en 1923 y se convirtió en el edificio más alto de Sudamérica (incluso superó hasta cuatro veces las reglamentaciones de altura llegando su coronamiento a los cien metros sobre Av. de Mayo), hasta ocho años después cuando se construyó el Kavanagh. <br /><br />El Barolo tiene otras características que lo hicieron y hacen especial.. Por ejemplo, fue la primera edificación de hormigón armado de casi 100 mts. de altura en la Ciudad. Además, está rematado por un faro giratorio de 300.000 bujías en el piso 22. En 1923, ese faro transmitió con sus luces el resultado de la pelea por el título mundial de boxeo entre Luis Angel Firpo y Jack Dempsey en Nueva York. <br /><br />Palanti también fue el creador del Palacio Salvo en Montevideo (Uruguay), con similares características de construcción que el Barolo. Estos dos edificios rioplatenses fueron verdaderos pioneros ya que probaron el uso vertical del hormigón consiguiendo que cada récord local conformara, simultáneamente, un récord internacional.",
+                    "tags": [
+                        "Satélite",
+                        "NASA",
+                        "Exploración"
+                    ],
+                    "mainImage": "https://picsum.photos/seed/moon/800/600",
+                    "thumbImage": "https://picsum.photos/seed/moon2/200/150"
+                },
+                {
+                    "id": 2,
+                    "title": "Saturno",
+                    "description": "Saturno es el sexto planeta del sistema solar y el segundo más grande. Sus espectaculares anillos están formados por partículas de hielo y roca. Tiene 83 lunas confirmadas, siendo Titán la más grande.",
+                    "tags": [
+                        "Planeta",
+                        "Anillos",
+                        "Gas gigante"
+                    ],
+                    "mainImage": "https://picsum.photos/seed/saturn/800/600",
+                    "thumbImage": "https://picsum.photos/seed/saturn2/200/150"
+                }
+            ]
+        },
+        {
+            "id": "Subtes",
+            "title": "Subtes de Buenos Aires",
+            "coverImage": "/adult/subtes/estacion-plaza-mayo-inauguracion-1913jpg.webp",
+            "items": [
+                {
+                    "id": 1,
+                    "title": "Los Rascacielos",
+                    "description": "Los rascacielos son el símbolo de la modernidad urbana. El primero fue construido en Chicago en 1885. Hoy en día, el Burj Khalifa en Dubái es el más alto del mundo con 828 metros de altura.",
+                    "tags": [
+                        "Arquitectura",
+                        "Urbano",
+                        "Moderno"
+                    ],
+                    "mainImage": "https://picsum.photos/seed/skyscraper/800/600",
+                    "thumbImage": "https://picsum.photos/seed/skyscraper2/200/150"
+                },
+                {
+                    "id": 2,
+                    "title": "Los Puentes",
+                    "description": "Los puentes son obras de ingeniería que conectan comunidades. El puente Golden Gate en San Francisco es uno de los más fotografiados del mundo. Fue construido entre 1933 y 1937 y mide 2.7 kilómetros.",
+                    "tags": [
+                        "Ingeniería",
+                        "Conectividad",
+                        "Icónico"
+                    ],
+                    "mainImage": "https://picsum.photos/seed/bridge/800/600",
+                    "thumbImage": "https://picsum.photos/seed/bridge2/200/150"
+                }
+            ]
+        }
+    ]
+}

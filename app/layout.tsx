@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ConfigProvider } from "@/context/ConfigContext";
+import { ContentProvider } from "@/context/ContentContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,7 +13,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es">
       <body>
         <ConfigProvider>
-          {children}
+          <ContentProvider>
+            {children}
+          </ContentProvider>
         </ConfigProvider>
       </body>
     </html>

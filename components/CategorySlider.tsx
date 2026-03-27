@@ -2,11 +2,13 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import gsap from "gsap";
-import { DetailView, GalleryItem, Category } from "@/components/DetailView";
+import { DetailView } from "@/components/DetailView";
+import { Category } from "@/types/content";
+import { useContent } from "@/context/ContentContext"
 
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
-
+/*
 const MOCK_CATEGORIES: Category[] = [
     {
         id: "obelisco",
@@ -95,11 +97,14 @@ const MOCK_CATEGORIES: Category[] = [
             },
         ],
     },
-];
+];*/
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
 export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: string) => void }) {
+    const { content, isLoading } = useContent();
+    const CATEGORIES_AND_DATA = content.categories;
+
     const [currentIndex, setCurrentIndex] = useState(0);
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
     const [currentItemIndex, setCurrentItemIndex] = useState(0);
@@ -144,7 +149,7 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
     };
 
     const handleNext = () => {
-        if (currentIndex < MOCK_CATEGORIES.length - 1) navigateTo(currentIndex + 1);
+        if (currentIndex < CATEGORIES_AND_DATA.length - 1) navigateTo(currentIndex + 1);
     };
 
     // ── Drag / Swipe ──────────────────────────────────────────────────────────
@@ -179,7 +184,23 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
         });
     };
 
-    const category = MOCK_CATEGORIES[currentIndex];
+    // ── Mientras carga ────────────────────────────────────────
+    if (isLoading) {
+        return (
+        <div style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "#111",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+        }}>
+            <p style={{ color: "#555", letterSpacing: 2 }}>Cargando...</p>
+        </div>
+        );
+    }
+
+    const category = CATEGORIES_AND_DATA[currentIndex];
 
     // ── Vista detalle ─────────────────────────────────────────────────────────
     if (selectedCategory) {
@@ -240,7 +261,7 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
                 }}
             >
                 <p style={{ fontSize: 13, letterSpacing: 3, color: "#aaa", textTransform: "uppercase", marginBottom: 8 }}>
-                    {currentIndex + 1} / {MOCK_CATEGORIES.length}
+                    {currentIndex + 1} / {CATEGORIES_AND_DATA.length}
                 </p>
                 <h2 style={{ fontSize: 56, fontWeight: 700, marginBottom: 12, lineHeight: 1 }}>
                     {category.title}
@@ -279,19 +300,19 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
             {/* Flecha derecha */}
             <button
                 onClick={handleNext}
-                disabled={currentIndex === MOCK_CATEGORIES.length - 1}
+                disabled={currentIndex === CATEGORIES_AND_DATA.length - 1}
                 style={{
                     position: "absolute",
                     right: 24,
                     top: "50%",
                     transform: "translateY(-50%)",
-                    background: currentIndex === MOCK_CATEGORIES.length - 1 ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.15)",
+                    background: currentIndex === CATEGORIES_AND_DATA.length - 1 ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.15)",
                     border: "none",
-                    color: currentIndex === MOCK_CATEGORIES.length - 1 ? "#444" : "white",
+                    color: currentIndex === CATEGORIES_AND_DATA.length - 1 ? "#444" : "white",
                     width: 48,
                     height: 48,
                     borderRadius: "50%",
-                    cursor: currentIndex === MOCK_CATEGORIES.length - 1 ? "not-allowed" : "pointer",
+                    cursor: currentIndex === CATEGORIES_AND_DATA.length - 1 ? "not-allowed" : "pointer",
                     fontSize: 20,
                     display: "flex",
                     alignItems: "center",
@@ -311,7 +332,7 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
                 display: "flex",
                 gap: 8,
             }}>
-                {MOCK_CATEGORIES.map((_, i) => (
+                {CATEGORIES_AND_DATA.map((_, i) => (
                     <div
                         key={i}
                         onClick={() => navigateTo(i)}

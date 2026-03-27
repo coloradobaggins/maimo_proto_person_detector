@@ -238,7 +238,7 @@ export default function Home() {
       )}
 
       {/* Selector de categorías (solo Mac en modo adult o adult-with-child) */}
-      {APP_MODE === "mac" && (detectionState === "adult" || globalState === "adult-with-child") && (
+      {/*APP_MODE === "mac" && (detectionState === "adult" || globalState === "adult-with-child") && (
         <div style={{ display: "flex", gap: 16, marginTop: 24 }}>
           {PUZZLE_CATEGORIES.map(cat => (
             <button
@@ -259,7 +259,7 @@ export default function Home() {
             </button>
           ))}
         </div>
-      )}
+      )*/}
 
       {/*<p>Estado: {detectionState}</p>*/}
       {/*APP_MODE === "mac" && (
