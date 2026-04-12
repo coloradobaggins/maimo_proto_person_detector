@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { RobotSVG } from "./RobotSVG";
 
@@ -12,12 +12,7 @@ interface IdleViewProps {
 
 type Edge = "bottom" | "top" | "left" | "right";
 
-// ─── Constantes fuera del componente (funciones impuras) ──────────────────────
-
-const PARTICLES = Array.from({ length: 20 }, () => ({
-    left: Math.random() * 100 + "%",
-    top: Math.random() * 100 + "%",
-}));
+// ─── Constantes ───────────────────────────────────────────────────────────────
 
 const MESSAGES = ["¡Hey!", "¡Psst!", "¡Hola!", "¿Jugamos?"];
 
@@ -33,6 +28,16 @@ function AdultIdle() {
     const textRef = useRef<HTMLDivElement>(null);
     const glowRef = useRef<HTMLDivElement>(null);
     const particlesRef = useRef<(HTMLDivElement | null)[]>([]);
+    const [particles, setParticles] = useState<{ left: string; top: string }[]>([]);
+
+    useEffect(() => {
+        setParticles(
+            Array.from({ length: 20 }, () => ({
+                left: Math.random() * 100 + "%",
+                top: Math.random() * 100 + "%",
+            }))
+        );
+    }, []);
 
     useEffect(() => {
         const text = textRef.current;
@@ -82,9 +87,9 @@ function AdultIdle() {
         });
 
         return () => {
-            gsap.killTweensOf([text, glow, ...particles]);
+            gsap.killTweensOf([text, glow, ...particlesRef.current]);
         };
-    }, []);
+    }, [particles]);
 
     return (
         <div style={{
@@ -145,7 +150,7 @@ function AdultIdle() {
             </div>
 
             {/* Partículas */}
-            {PARTICLES.map((p, i) => (
+            {particles.map((p, i) => (
                 <div
                     key={i}
                     ref={el => { particlesRef.current[i] = el; }}

@@ -25,6 +25,8 @@ pnpm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 
+*.mp3
+
 /public/*.jpg
 /public/*.webp
 *.jpg

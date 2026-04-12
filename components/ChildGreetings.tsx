@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { RobotSVG } from "./RobotSVG";
+import { usePuzzleSounds } from "@/hooks/usePuzzleSounds";
 
 interface ChildGreetingProps {
   onTap: () => void;
@@ -15,12 +16,14 @@ const MESSAGES = ["👀", "¡Psst!", "¡Hola!", "🤖", "¿Jugamos?"];
 export function ChildGreeting({ onTap }: ChildGreetingProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const robotRef = useRef<HTMLDivElement>(null);
-  const viñetaRef = useRef<HTMLDivElement>(null);
+  const vinetaRef = useRef<HTMLDivElement>(null);
+  const tappedRef = useRef(false);
+  const { playRobotPeek, playTap, closeAudio } = usePuzzleSounds();
 
   useEffect(() => {
     const robot = robotRef.current;
-    const viñeta = viñetaRef.current;
-    if (!robot || !viñeta) return;
+    const vineta = vinetaRef.current;
+    if (!robot || !vineta) return;
 
     const getPositionForEdge = (edge: Edge) => {
       const margin = -130;
@@ -60,20 +63,23 @@ export function ChildGreeting({ onTap }: ChildGreetingProps) {
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const peek = () => {
+      if (tappedRef.current) return;
+      playRobotPeek();
+
       const edge = edges[Math.floor(Math.random() * edges.length)];
       const pos = getPositionForEdge(edge);
       const message = MESSAGES[Math.floor(Math.random() * MESSAGES.length)];
 
       gsap.set(robot, { x: pos.x, y: pos.y, opacity: 1 });
-      gsap.set(viñeta, { opacity: 0, scale: 0.5 });
-      viñeta.textContent = message;
+      gsap.set(vineta, { opacity: 0, scale: 0.5 });
+      vineta.textContent = message;
 
       if (edge === "top") {
-        viñeta.style.bottom = "auto";
-        viñeta.style.top = "110%";
+        vineta.style.bottom = "auto";
+        vineta.style.top = "110%";
       } else {
-        viñeta.style.top = "auto";
-        viñeta.style.bottom = "110%";
+        vineta.style.top = "auto";
+        vineta.style.bottom = "110%";
       }
 
       const tl = gsap.timeline({
@@ -89,14 +95,14 @@ export function ChildGreeting({ onTap }: ChildGreetingProps) {
           duration: 0.7,
           ease: "elastic.out(1, 0.5)",
         })
-        .to(viñeta, {
+        .to(vineta, {
           opacity: 1,
           scale: 1,
           duration: 0.4,
           ease: "back.out(3)",
         })
         .to({}, { duration: 1.5 })
-        .to(viñeta, {
+        .to(vineta, {
           opacity: 0,
           scale: 0.5,
           duration: 0.2,
@@ -113,11 +119,16 @@ export function ChildGreeting({ onTap }: ChildGreetingProps) {
 
     return () => {
       clearTimeout(timeoutId);
-      gsap.killTweensOf([robot, viñeta]);
+      gsap.killTweensOf([robot, vineta]);
+      closeAudio();
     };
   }, []);
 
   const handleTap = () => {
+    if (tappedRef.current) return;
+    tappedRef.current = true;
+    playTap();
+
     const container = containerRef.current;
     if (!container) return;
     gsap.to(container, {
@@ -150,7 +161,7 @@ export function ChildGreeting({ onTap }: ChildGreetingProps) {
         }}
       >
         <div
-          ref={viñetaRef}
+          ref={vinetaRef}
           style={{
             position: "absolute",
             bottom: "110%",

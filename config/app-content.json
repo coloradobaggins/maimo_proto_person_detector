@@ -4,11 +4,12 @@
             "id": "obelisco",
             "title": "El Obelisco",
             "coverImage": "/adult/obelisco/1-29.jpg",
+            "shortDescription": "El Obelisco.... ubicado en Buenos Aires, Argentina",
             "items": [
                 {
                     "id": 1,
                     "title": "Construccion",
-                    "description": "El <b>Obelisco de Buenos Aires</b> es un monumento histórico, considerado ícono de Buenos Aires, capital de Argentina.<br /><br /> Fue construido en 1936 con motivo del cuarto centenario de la primera fundación de Buenos Aires por Pedro de Mendoza. La obra es autoría del arquitecto argentino Alberto Prebisch y la construcción estuvo a cargo del consorcio alemán GEOPÉ-Siemens Bauunion-Grün & Bilfinger. Tiene una altura de 67,5 metros, de los cuales 63 son desde la base de 7x7 m hasta el inicio del ápice de 3,50x3,50 m, culminando con una punta del estilo Roma de unos 40 cm. Tiene una sola puerta de entrada y en su cúspide hay cuatro ventanas.<br /><br /> Se encuentra ubicado en la plaza de la República, en la intersección de las avenidas Corrientes y 9 de Julio, en el barrio de San Nicolás en Buenos Aires.",
+                    "description": "El <b>Obelisco de Buenos Aires</b> es un monumento <i>histórico</i>, considerado ícono de Buenos Aires, capital de Argentina.<br /><br /> Fue construido en 1936 con motivo del cuarto centenario de la primera fundación de Buenos Aires por Pedro de Mendoza. La obra es autoría del arquitecto argentino Alberto Prebisch y la construcción estuvo a cargo del consorcio alemán GEOPÉ-Siemens Bauunion-Grün & Bilfinger. Tiene una altura de 67,5 metros, de los cuales 63 son desde la base de 7x7 m hasta el inicio del ápice de 3,50x3,50 m, culminando con una punta del estilo Roma de unos 40 cm. Tiene una sola puerta de entrada y en su cúspide hay cuatro ventanas.<br /><br /> Se encuentra ubicado en la plaza de la República, en la intersección de las avenidas Corrientes y 9 de Julio, en el barrio de San Nicolás en Buenos Aires.",
                     "tags": [
                         "Felino",
                         "África",
@@ -59,6 +60,7 @@
             "id": "palaciobarolo",
             "title": "Palacio Barolo",
             "coverImage": "/adult/barolo/palacio-barolo-ve-mayo-street-buenos-aires-argentina.jpg",
+            "shortDescription": "El Palacio Barolo es un edificio histórico ubicado en Buenos Aires, Argentina",
             "items": [
                 {
                     "id": 1,
@@ -70,7 +72,11 @@
                         "Exploración"
                     ],
                     "mainImage": "https://picsum.photos/seed/moon/800/600",
-                    "thumbImage": "https://picsum.photos/seed/moon2/200/150"
+                    "thumbImage": "https://picsum.photos/seed/moon2/200/150",
+                    "images": [
+                        { "url": "/adult/obelisco/gallery/g2.jpg", "caption": "La manada al atardecer"},
+                        { "url": "/adult/obelisco/gallery/g3.webp", "caption": "El rugido del rey"}
+                    ]
                 },
                 {
                     "id": 2,
@@ -90,6 +96,7 @@
             "id": "Subtes",
             "title": "Subtes de Buenos Aires",
             "coverImage": "/adult/subtes/estacion-plaza-mayo-inauguracion-1913jpg.webp",
+            "shortDescription": "Los subtes... ubicados en Buenos Aires, Argentina",
             "items": [
                 {
                     "id": 1,

@@ -10,6 +10,7 @@ import { useNotebookSync } from "@/hooks/useNotebookSync";
 import { PuzzleCategory, PUZZLE_CATEGORIES } from "@/types/config";
 import { PuzzleBoard } from "@/components/PuzzleBoards";
 import { CategorySlider } from "@/components/CategorySlider";
+import { CategoryGrid } from "@/components/CategoryGrid";
 import { IdleView } from "@/components/IdleView";
 import { ChildGreeting } from "@/components/ChildGreetings";
 
@@ -45,9 +46,12 @@ export default function Home() {
   const defaultCategory = config?.config.default_puzzle_category;
   const currentCategory = activeCategory ?? defaultCategory;
   const currentPuzzleImage = config.puzzles[currentCategory]?.images[currentImageIndex];
-  const puzzleImageUrl = currentPuzzleImage 
+  const puzzleImageUrl = currentPuzzleImage
     ? `/puzzles/${currentCategory}/${currentPuzzleImage.filename}`
     : `https://picsum.photos/seed/${currentCategory}/400/400`;
+  const puzzleAudioUrl = currentPuzzleImage?.audio
+    ? `/puzzles/${currentCategory}/audios/${currentPuzzleImage.audio}`
+    : null;
   
 
   type NotebookPhase = "idle" | "greeting" | "puzzle";
@@ -86,12 +90,21 @@ export default function Home() {
       setTimeout(() => setShowPuzzle(true), 100);
     } else {
       setShowPuzzle(false);
+      if (notebookPhase === "idle") {
+        setCurrentImageIndex(0);
+      }
     }
   }, [notebookPhase]);
 
   // ── Estado global ──────────────────────────────────────────────────────────
   const globalState = (()=>{
-    if(APP_MODE === "notebook") return detectionState; // en modo notebook, el estado global es el mismo que el de detección
+    if (APP_MODE === "notebook") {
+      // notebook: si detecta ambos en la misma cámara, prioriza child
+      if (detectionState === "both") return "child";
+      return detectionState;
+    }
+    // mac: si detecta ambos en la misma cámara, prioriza adult
+    if (detectionState === "both") return "adult";
     if (detectionState === "adult" && childPresent) return "adult-with-child";
     return detectionState;
   })()
@@ -274,8 +287,12 @@ export default function Home() {
         </div>
       )*/}
 
-      {APP_MODE === "mac" && (globalState === "adult" || globalState === "adult-with-child") && (
+      {APP_MODE === "mac" && globalState === "adult" && (
         <CategorySlider onCategorySelect={handleCategorySelect} />
+      )}
+
+      {APP_MODE === "mac" && globalState === "adult-with-child" && (
+        <CategoryGrid onCategorySelect={id => handleCategorySelect(id as PuzzleCategory)} />
       )}
 
       {globalState === "idle" && <IdleView mode={APP_MODE as "mac" | "notebook"} />}
@@ -305,7 +322,7 @@ export default function Home() {
           }}>
             <PuzzleBoard
               key={`${currentCategory}-${currentImageIndex}`}
-              category={currentCategory}
+              audioUrl={puzzleAudioUrl}
               imageUrl={puzzleImageUrl}
               title={currentPuzzleImage.title}
               description={currentPuzzleImage.description}

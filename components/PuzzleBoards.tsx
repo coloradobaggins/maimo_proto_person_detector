@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { PuzzleCategory } from "@/types/config";
 import { PuzzleIntro } from "./PuzzleIntro";
+import { usePuzzleSounds } from "@/hooks/usePuzzleSounds";
+import { usePuzzleAmbient } from "@/hooks/usePuzzleAmbient";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -12,7 +13,7 @@ interface Piece {
 }
 
 interface PuzzleBoardProps {
-  category: PuzzleCategory;
+  audioUrl: string | null;
   imageUrl: string;
   title: string;
   description: string;
@@ -40,7 +41,7 @@ function shuffleArray<T>(arr: T[]): T[] {
 // ─── Componente ───────────────────────────────────────────────────────────────
 
 export function PuzzleBoard({
-  category,
+  audioUrl,
   imageUrl,
   title,
   description,
@@ -65,6 +66,8 @@ export function PuzzleBoard({
   const boardRef = useRef<HTMLDivElement>(null);
   const boardPiecesRef = useRef<(HTMLDivElement | null)[]>([]);
   const [showCompleteImage, setShowCompleteImage] = useState(false);
+  const { playGrab, playCorrect, playWrong, playComplete, playFanfare } = usePuzzleSounds();
+  const { stop: stopAmbient } = usePuzzleAmbient(audioUrl, gamePhase === "playing");
 
   // ── Inicializar piezas mezcladas ───────────────────────────────────────────
 
@@ -73,14 +76,20 @@ export function PuzzleBoard({
     const isComplete = newBoard.every((cell, index) => cell === index);
     if (isComplete) {
       console.log("🎉 Puzzle completado!");
+      stopAmbient();
+      playComplete();
       setCompleted(true);
       setShowCompleteImage(true);
-      setTimeout(() => setShowPopup(true), 2800);
+      setTimeout(() => {
+        setShowPopup(true);
+        playFanfare();
+      }, 2800);
     }
   }, []);
 
   // ── Drag handlers ─────────────────────────────────────────────────────────
   const handleDragStart = (pieceId: number) => {
+    playGrab();
     setDraggingId(pieceId);
   };
 
@@ -93,10 +102,12 @@ export function PuzzleBoard({
 
     // Si la pieza encajó en el lugar correcto
     if (draggingId === cellIndex) {
+      playCorrect();
       setPieces(prev => prev.map(p =>
         p.id === draggingId ? { ...p, placed: true } : p
       ));
     } else {
+      playWrong();
       // Pieza en lugar incorrecto, la devolvemos al pool
       setTimeout(() => {
         setBoard(prev => {
@@ -154,12 +165,32 @@ export function PuzzleBoard({
   }
 
   return (
-    <div style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: "100vh",
+      padding: 24,
+      fontFamily: "var(--font-nunito), system-ui, sans-serif",
+    }}>
 
       {/* Título y descripción */}
-      <div style={{ marginBottom: 24 }}>
-        <h2 style={{ fontSize: 24, marginBottom: 8 }}>{title}</h2>
-        <p style={{ color: "#666", fontSize: 14 }}>{description}</p>
+      <div style={{ marginBottom: 24, textAlign: "center" }}>
+        <h2 style={{
+          fontSize: 42,
+          marginBottom: 8,
+          fontFamily: "var(--font-fredoka), system-ui, sans-serif",
+          fontWeight: 700,
+          color: "white",
+          letterSpacing: "0.5px",
+        }}>{title}</h2>
+        <p style={{
+          color: "#ccc",
+          fontSize: 18,
+          fontFamily: "var(--font-nunito), system-ui, sans-serif",
+          fontWeight: 600,
+        }}>{description}</p>
       </div>
 
       {/* Layout principal */}
@@ -167,7 +198,14 @@ export function PuzzleBoard({
 
         {/* Izquierda: piezas mezcladas */}
         <div>
-          <p style={{ fontSize: 12, color: "#999", marginBottom: 8 }}>
+          <p style={{
+            fontSize: 18,
+            color: "#bbb",
+            marginBottom: 8,
+            fontFamily: "var(--font-nunito), system-ui, sans-serif",
+            fontWeight: 600,
+            textAlign: "center",
+          }}>
             Piezas ({availablePieces.length} restantes)
           </p>
           <div style={{
@@ -192,7 +230,14 @@ export function PuzzleBoard({
 
         {/* Derecha: tablero destino */}
         <div>
-          <p style={{ fontSize: 12, color: "#999", marginBottom: 8 }}>
+          <p style={{
+            fontSize: 18,
+            color: "#bbb",
+            marginBottom: 8,
+            fontFamily: "var(--font-nunito), system-ui, sans-serif",
+            fontWeight: 600,
+            textAlign: "center",
+          }}>
             Armá el rompecabezas
           </p>
           {showCompleteImage ? (
@@ -264,9 +309,27 @@ export function PuzzleBoard({
             boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
           }}>
             <div style={{ fontSize: 64, marginBottom: 16 }}>🎉</div>
-            <h2 style={{ fontSize: 28, marginBottom: 8 }}>¡Felicitaciones!</h2>
-            <p style={{ color: "#666", marginBottom: 8 }}>{title}</p>
-            <p style={{ color: "#444", fontSize: 14, marginBottom: 24 }}>{description}</p>
+            <h2 style={{
+              fontSize: 36,
+              marginBottom: 8,
+              fontFamily: "var(--font-fredoka), system-ui, sans-serif",
+              fontWeight: 700,
+              color: "#1a1a2e",
+            }}>¡Felicitaciones!</h2>
+            <p style={{
+              color: "#444",
+              marginBottom: 8,
+              fontFamily: "var(--font-nunito), system-ui, sans-serif",
+              fontWeight: 700,
+              fontSize: 18,
+            }}>{title}</p>
+            <p style={{
+              color: "#666",
+              fontSize: 16,
+              marginBottom: 24,
+              fontFamily: "var(--font-nunito), system-ui, sans-serif",
+              fontWeight: 400,
+            }}>{description}</p>
             <button
               onClick={() => {
                 setShowPopup(false)

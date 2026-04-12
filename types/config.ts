@@ -6,6 +6,7 @@ export interface PuzzleImage {
     filename: string;
     title: string;
     description: string;
+    audio?: string; // nombre del archivo en /puzzles/{category}/audios/
 }
 
 export interface PuzzleCategory_Data {

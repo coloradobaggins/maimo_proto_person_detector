@@ -78,12 +78,20 @@
                 {
                     "filename": "o1.jpg",
                     "title": "Titulo o1",
-                    "description": "Descripción o1"
+                    "description": "Descripción o1",
+                    "audio": "obelisco_audio_1.mp3"
                 },
                 {
                     "filename": "o2.jpg",
                     "title": "Titulo o2",
-                    "description": "Descripción o2"
+                    "description": "Descripción o2",
+                    "audio": "obelisco_audio_2.mp3"
+                },
+                {
+                    "filename": "o3.jpg",
+                    "title": "Titulo o3",
+                    "description": "Descripción o3",
+                    "audio": "obelisco_audio_3.mp3"
                 }
             ]
         },
@@ -106,12 +114,14 @@
                 {
                     "filename": "s1.jpg",
                     "title": "Titulo Subtes1",
-                    "description": "Descripción SUBTEs1"
+                    "description": "Descripción SUBTEs1",
+                    "audio": "subte_audio_1.mp3"
                 },
                 {
                     "filename": "p2.jpg",
                     "title": "Titulo SUBTES2",
-                    "description": "Descripción Sub2"
+                    "description": "Descripción Sub2",
+                    "audio": "subte_audio_2.mp3"
                 }
             ]
         }

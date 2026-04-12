@@ -19,6 +19,7 @@ export interface Category {
     id: string;
     title: string;
     coverImage: string;
+    shortDescription?: string;
     items: GalleryItem[];
 }
 
