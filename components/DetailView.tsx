@@ -2,461 +2,746 @@
 
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import { ImageGallery } from "./ImageGallery";
-import { Category, GalleryItem } from "../types/content";
+import QRCode from "react-qr-code";
+import { Category } from "../types/content";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
 interface DetailViewProps {
   category: Category;
-  currentItem: GalleryItem;
-  currentIndex: number;
-  total: number;
+  categoryIndex: number;
   onClose: () => void;
-  onPrev: () => void;
-  onNext: () => void;
 }
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
-export function DetailView({
-  category,
-  currentItem,
-  currentIndex,
-  total,
-  onClose,
-  onPrev,
-  onNext,
-}: DetailViewProps) {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const prevIndexRef = useRef<number>(currentIndex);
-
+export function DetailView({ category, categoryIndex, onClose }: DetailViewProps) {
+  const [currentItemIndex, setCurrentItemIndex] = useState(0);
+  const [mapsOpen, setMapsOpen] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryIndex, setGalleryIndex] = useState(0);
 
-  // ── Animación slide entre items ───────────────────────────────────────────
+  const contentRef = useRef<HTMLDivElement>(null);
+  const prevIndexRef = useRef(0);
+  const mapsPopupRef = useRef<HTMLDivElement>(null);
+  const qrPopupRef = useRef<HTMLDivElement>(null);
+  const galleryPopupRef = useRef<HTMLDivElement>(null);
+  const galleryDragStartX = useRef<number | null>(null);
+
+  const currentItem = category.items[currentItemIndex];
+  const thumbnails = currentItem.images?.slice(0, 3) ?? [];
+  const categoryUrl = `https://maimonides.edu/categoria/${category.id}`;
+  const mapsUrl =
+    category.latitude != null && category.longitude != null
+      ? `https://maps.google.com/maps?q=${category.latitude},${category.longitude}&z=15&output=embed`
+      : null;
+
+  // ── Animación slide al cambiar ítem ──────────────────────────────────────
   useEffect(() => {
     if (!contentRef.current) return;
-    if (prevIndexRef.current === currentIndex) return;
-
-    const direction = currentIndex > prevIndexRef.current ? 1 : -1;
-    prevIndexRef.current = currentIndex;
-
-    // Reset scroll al cambiar de item
-    if (scrollRef.current) scrollRef.current.scrollTop = 0;
-
+    if (prevIndexRef.current === currentItemIndex) return;
+    const direction = currentItemIndex > prevIndexRef.current ? 1 : -1;
+    prevIndexRef.current = currentItemIndex;
     gsap.fromTo(
       contentRef.current,
-      { opacity: 0, x: direction * 60 },
-      { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }
+      { opacity: 0, x: direction * 40 },
+      { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }
     );
-  }, [currentIndex]);
+  }, [currentItemIndex]);
 
-  const canPrev = currentIndex > 0;
-  const canNext = currentIndex < total - 1;
+  // ── Fade in popups ────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (mapsOpen && mapsPopupRef.current) {
+      gsap.fromTo(mapsPopupRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+    }
+  }, [mapsOpen]);
+
+  useEffect(() => {
+    if (qrOpen && qrPopupRef.current) {
+      gsap.fromTo(qrPopupRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+    }
+  }, [qrOpen]);
+
+  useEffect(() => {
+    if (galleryOpen && galleryPopupRef.current) {
+      gsap.fromTo(galleryPopupRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+    }
+  }, [galleryOpen]);
+
+  // ── Fade out y cierre de popups ───────────────────────────────────────────
+  const closeMaps = () => {
+    if (mapsPopupRef.current) {
+      gsap.to(mapsPopupRef.current, { opacity: 0, duration: 0.2, onComplete: () => setMapsOpen(false) });
+    } else {
+      setMapsOpen(false);
+    }
+  };
+
+  const closeQr = () => {
+    if (qrPopupRef.current) {
+      gsap.to(qrPopupRef.current, { opacity: 0, duration: 0.2, onComplete: () => setQrOpen(false) });
+    } else {
+      setQrOpen(false);
+    }
+  };
+
+  const closeGallery = () => {
+    if (galleryPopupRef.current) {
+      gsap.to(galleryPopupRef.current, { opacity: 0, duration: 0.2, onComplete: () => setGalleryOpen(false) });
+    } else {
+      setGalleryOpen(false);
+    }
+  };
+
+  const openGallery = (index: number) => {
+    setGalleryIndex(index);
+    setGalleryOpen(true);
+  };
+
+  const handleGalleryDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    galleryDragStartX.current = "touches" in e ? e.touches[0].clientX : e.clientX;
+  };
+
+  const handleGalleryDragEnd = (e: React.MouseEvent | React.TouchEvent) => {
+    if (galleryDragStartX.current === null) return;
+    const endX = "changedTouches" in e ? e.changedTouches[0].clientX : e.clientX;
+    const diff = galleryDragStartX.current - endX;
+    galleryDragStartX.current = null;
+
+    if (Math.abs(diff) > 50) {
+      e.stopPropagation();
+      if (diff > 0) setGalleryIndex(i => Math.min(thumbnails.length - 1, i + 1));
+      else setGalleryIndex(i => Math.max(0, i - 1));
+    }
+  };
 
   return (
-    <div style={{
-      position: "fixed",
-      inset: 0,
-      backgroundColor: "#0d0d0d",
-      overflow: "hidden",
-    }}>
+    <div style={{ position: "fixed", inset: 0, overflow: "hidden", userSelect: "none" }}>
+      <style>{`
+        .detail-desc-scroll::-webkit-scrollbar { width: 3px; }
+        .detail-desc-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        .detail-desc-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.28); border-radius: 2px; }
+        .detail-desc-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
+      `}</style>
 
-      {/* ── Overlay flotante superior ──────────────────────────────────── */}
-      {/* Contador — top left */}
+      {/* Imagen de fondo (coverImage de la categoría) */}
       <div style={{
         position: "absolute",
-        top: 24,
+        inset: 0,
+        backgroundImage: `url(${category.coverImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }} />
+
+      {/* Overlay base oscuro */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        background: "rgba(0,0,0,0.65)",
+      }} />
+
+      {/* Línea vertical separadora — entre contenido izquierdo y menú derecho */}
+      <div style={{
+        position: "absolute",
+        right: "42%",
+        top: 0,
+        bottom: 0,
+        width: 1,
+        background: "rgba(255,255,255,0.35)",
+        zIndex: 1,
+      }} />
+
+      {/* Línea vertical derecha — debajo del gradiente */}
+      <div style={{
+        position: "absolute",
+        right: 32,
+        top: 0,
+        bottom: 0,
+        width: 1,
+        background: "rgba(255,255,255,0.35)",
+        zIndex: 1,
+      }} />
+
+      {/* Gradiente derecho — desvanece la línea derecha */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        background: "linear-gradient(to left, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0) 52%)",
+        zIndex: 2,
+      }} />
+
+      {/* ── HEADER: número + título categoría + título ítem ─────────────────── */}
+      <div style={{
+        position: "absolute",
+        top: 32,
         left: 32,
-        zIndex: 30,
+        right: 32,
+        borderLeft: "1px solid rgba(255,255,255,0.35)",
+        borderBottom: "1px solid rgba(255,255,255,0.35)",
+        paddingTop: 12,
+        paddingLeft: 20,
+        paddingBottom: 16,
+        paddingRight: 20,
         display: "flex",
-        alignItems: "center",
-        gap: 8,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "baseline",
+        zIndex: 3,
       }}>
+        {/* Izquierda: número + título categoría */}
+        <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
+          <span style={{
+            fontSize: 18,
+            fontWeight: 400,
+            color: "rgba(255,255,255,0.55)",
+            letterSpacing: 3,
+          }}>
+            {String(categoryIndex + 1).padStart(2, "0")}
+          </span>
+          <h2 style={{
+            fontSize: 54,
+            fontWeight: 700,
+            lineHeight: 1,
+            margin: 0,
+            color: "white",
+            textTransform: "uppercase",
+          }}>
+            {category.title}
+          </h2>
+        </div>
+
+        {/* Derecha: título del ítem activo */}
         <span style={{
-          fontSize: 11,
-          letterSpacing: 4,
-          textTransform: "uppercase",
-          color: "rgba(255,255,255,0.5)",
-          backdropFilter: "blur(8px)",
-          backgroundColor: "rgba(0,0,0,0.35)",
-          padding: "6px 14px",
-          borderRadius: 20,
-          border: "1px solid rgba(255,255,255,0.08)",
-        }}>
-          {currentIndex + 1} / {total}
-        </span>
-        <span style={{
-          fontSize: 11,
+          fontSize: 13,
+          fontWeight: 700,
           letterSpacing: 3,
           textTransform: "uppercase",
-          color: "rgba(255,255,255,0.35)",
-          backdropFilter: "blur(8px)",
-          backgroundColor: "rgba(0,0,0,0.35)",
-          padding: "6px 14px",
-          borderRadius: 20,
-          border: "1px solid rgba(255,255,255,0.06)",
+          color: "rgba(255,255,255,0.7)",
         }}>
-          {category.title}
+          {currentItem.title}
         </span>
       </div>
 
-      {/* Botón cerrar — top right flotante */}
+      {/* ── BOTÓN CERRAR (top-right, sobre el header) ────────────────────────── */}
       <button
         onClick={onClose}
         style={{
           position: "absolute",
-          top: 20,
-          right: 28,
-          zIndex: 30,
-          width: 44,
-          height: 44,
-          borderRadius: "50%",
-          background: "rgba(15,15,15,0.6)",
-          backdropFilter: "blur(12px)",
-          border: "1px solid rgba(255,255,255,0.12)",
-          color: "rgba(255,255,255,0.75)",
+          top: 16,
+          right: 52,
+          zIndex: 5,
+          background: "none",
+          border: "none",
+          color: "rgba(255,255,255,0.5)",
           fontSize: 18,
           cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
-          transition: "background 0.2s, color 0.2s",
-        }}
-        onMouseEnter={e => {
-          e.currentTarget.style.background = "rgba(255,255,255,0.12)";
-          e.currentTarget.style.color = "white";
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.background = "rgba(15,15,15,0.6)";
-          e.currentTarget.style.color = "rgba(255,255,255,0.75)";
+          lineHeight: 1,
         }}
       >
         ✕
       </button>
 
-      {/* ── Botones nav — flotantes sobre la imagen ────────────────────── */}
-      <NavButton
-        direction="prev"
-        onClick={onPrev}
-        disabled={!canPrev}
-        active={canPrev}
-      />
-      <NavButton
-        direction="next"
-        onClick={onNext}
-        disabled={!canNext}
-        active={canNext}
-      />
-
-      {/* ── Área principal con scroll ──────────────────────────────────── */}
+      {/* ── CONTENIDO IZQUIERDO ──────────────────────────────────────────────── */}
       <div
-        ref={scrollRef}
+        ref={contentRef}
         style={{
           position: "absolute",
-          inset: 0,
-          overflowY: "auto",
-          overflowX: "hidden",
+          top: 160,
+          left: 52,
+          right: "42%",
+          bottom: 130,
+          zIndex: 3,
+          overflow: "hidden",
         }}
       >
-        <div ref={contentRef}>
+        {/* Título del ítem */}
+        <h3 style={{
+          fontSize: 18,
+          fontWeight: 700,
+          color: "white",
+          textTransform: "uppercase",
+          letterSpacing: 3,
+          marginBottom: 20,
+          marginTop: 0,
+        }}>
+          {currentItem.title}
+        </h3>
 
-          {/* Hero — imagen a pantalla completa */}
+        {/* Descripción en 2 columnas con scroll */}
+        <div
+          className="detail-desc-scroll"
+          style={{ height: 400, overflowY: "auto", overflowX: "hidden" }}
+        >
+          <div
+            dangerouslySetInnerHTML={{ __html: currentItem.description }}
+            style={{
+              columns: 2,
+              columnGap: 32,
+              fontSize: 13,
+              lineHeight: 1.75,
+              color: "rgba(255,255,255,0.7)",
+              margin: 0,
+            }}
+          />
+        </div>
+
+      </div>
+
+      {/* Fade inferior full-width — cubre todo el ancho, viene de abajo */}
+      <div style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 220,
+        background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%)",
+        zIndex: 3,
+        pointerEvents: "none",
+      }} />
+
+      {/* ── THUMBNAILS — de punta a punta, fuera del div de contenido ────────── */}
+      {thumbnails.length > 0 && (
+        <div style={{
+          position: "absolute",
+          left: 32,
+          right: "42%",
+          bottom: 0,
+          height: 120,
+          display: "flex",
+          gap: 2,
+          zIndex: 4,
+        }}>
+          {thumbnails.map((img, i) => (
+            <div
+              key={i}
+              onClick={() => openGallery(i)}
+              style={{
+                flex: 1,
+                overflow: "hidden",
+                cursor: "pointer",
+              }}
+            >
+              <img
+                src={img.url}
+                alt={img.caption ?? ""}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  display: "block",
+                  transition: "transform 0.35s ease",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.06)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; }}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── MENÚ DERECHO: navegación de ítems ───────────────────────────────── */}
+      <div style={{
+        position: "absolute",
+        top: 160,
+        right: 52,
+        width: "28%",
+        zIndex: 3,
+      }}>
+        {category.items.map((item, i) => (
+          <div
+            key={item.id}
+            onClick={() => setCurrentItemIndex(i)}
+            style={{
+              fontSize: 13,
+              fontWeight: 700,
+              letterSpacing: 3,
+              textTransform: "uppercase",
+              color: i === currentItemIndex ? "white" : "rgba(255,255,255,0.35)",
+              cursor: "pointer",
+              padding: "12px 0",
+              borderBottom: i === currentItemIndex
+                ? "1px solid rgba(255,255,255,0.6)"
+                : "1px solid rgba(255,255,255,0.08)",
+              transition: "color 0.2s",
+            }}
+          >
+            {item.title}
+          </div>
+        ))}
+      </div>
+
+      {/* ── BOTONES FIJOS DERECHA ────────────────────────────────────────────── */}
+      <div style={{
+        position: "absolute",
+        bottom: 48,
+        right: 52,
+        zIndex: 3,
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+        alignItems: "flex-end",
+      }}>
+        <button
+          onClick={() => setMapsOpen(true)}
+          style={{
+            background: "none",
+            border: "none",
+            color: "rgba(255,255,255,0.65)",
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: 3,
+            textTransform: "uppercase",
+            cursor: "pointer",
+            padding: 0,
+          }}
+        >
+          Como llegar
+        </button>
+        <button
+          onClick={() => setQrOpen(true)}
+          style={{
+            background: "none",
+            border: "none",
+            color: "rgba(255,255,255,0.65)",
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: 3,
+            textTransform: "uppercase",
+            cursor: "pointer",
+            padding: 0,
+          }}
+        >
+          Informacion Completa
+        </button>
+      </div>
+
+      {/* ── POPUP: COMO LLEGAR ───────────────────────────────────────────────── */}
+      {mapsOpen && (
+        <div
+          ref={mapsPopupRef}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 10,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {/* Overlay backdrop */}
+          <div
+            onClick={closeMaps}
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(0,0,0,0.72)",
+            }}
+          />
+          {/* Modal */}
           <div style={{
             position: "relative",
-            width: "100%",
-            height: "65vh",
-            minHeight: 400,
-            flexShrink: 0,
+            width: "60%",
+            height: "60%",
+            background: "#111",
+            border: "1px solid rgba(255,255,255,0.15)",
+            display: "flex",
+            flexDirection: "column",
           }}>
-            <div style={{
-              position: "absolute",
-              inset: 0,
-              backgroundImage: `url(${currentItem.mainImage})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center top",
-            }} />
-
-            {/* Gradiente oscuro abajo del hero para que el título flote */}
-            <div style={{
-              position: "absolute",
-              inset: 0,
-              background: "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 40%, rgba(13,13,13,0.85) 80%, #0d0d0d 100%)",
-            }} />
-
-            {/* Título superpuesto sobre la imagen */}
-            <div style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              padding: "0 48px 32px",
-            }}>
-              <h1 style={{
-                fontSize: "clamp(26px, 4vw, 48px)",
-                fontWeight: 300,
-                color: "white",
-                letterSpacing: 0.5,
-                lineHeight: 1.2,
-                margin: 0,
-                textShadow: "0 2px 20px rgba(0,0,0,0.6)",
-              }}>
-                {currentItem.title}
-              </h1>
-            </div>
-          </div>
-
-          {/* ── Contenido editorial ──────────────────────────────────── */}
-          <div style={{
-            maxWidth: 860,
-            margin: "0 auto",
-            padding: "40px 48px 80px",
-            color: "white",
-          }}>
-
-            {/* Tags */}
-            {currentItem.tags.length > 0 && (
-              <div style={{
-                display: "flex",
-                gap: 8,
-                flexWrap: "wrap",
-                marginBottom: 36,
-              }}>
-                {currentItem.tags.map(tag => (
-                  <span key={tag} style={{
-                    padding: "5px 14px",
-                    borderRadius: 20,
-                    fontSize: 11,
-                    letterSpacing: 2,
-                    textTransform: "uppercase",
-                    color: "rgba(255,255,255,0.45)",
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    backgroundColor: "rgba(255,255,255,0.04)",
-                  }}>
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Línea divisoria elegante */}
-            <div style={{
-              width: 48,
-              height: 1,
-              backgroundColor: "rgba(255,255,255,0.15)",
-              marginBottom: 32,
-            }} />
-
-            {/* Descripción */}
-            <div
-              dangerouslySetInnerHTML={{ __html: currentItem.description }}
-              style={{
-                color: "rgba(255,255,255,0.65)",
-                lineHeight: 1.9,
-                fontSize: 16,
-                marginBottom: 48,
-                fontWeight: 300,
-              }}
-            />
-
-            {/* Galería thumbnail */}
-            {currentItem.thumbImage && currentItem.images && currentItem.images.length > 0 && (
-              <div style={{ marginBottom: 32 }}>
-                <p style={{
-                  fontSize: 10,
-                  letterSpacing: 3,
-                  textTransform: "uppercase",
-                  color: "rgba(255,255,255,0.3)",
-                  marginBottom: 14,
-                }}>
-                  Galería · {currentItem.images.length} imágenes
-                </p>
-
-                <div
-                  onClick={() => setGalleryOpen(true)}
-                  style={{
-                    position: "relative",
-                    cursor: "pointer",
-                    borderRadius: 6,
-                    overflow: "hidden",
-                  }}
-                  onMouseEnter={e => {
-                    const img = e.currentTarget.querySelector("img");
-                    if (img) img.style.transform = "scale(1.03)";
-                  }}
-                  onMouseLeave={e => {
-                    const img = e.currentTarget.querySelector("img");
-                    if (img) img.style.transform = "scale(1)";
-                  }}
-                >
-                  <img
-                    src={currentItem.thumbImage}
-                    alt={currentItem.title}
-                    style={{
-                      width: "100%",
-                      display: "block",
-                      objectFit: "cover",
-                      maxHeight: 280,
-                      transition: "transform 0.5s ease",
-                    }}
-                  />
-                  {/* Overlay "ver galería" */}
-                  <div style={{
-                    position: "absolute",
-                    inset: 0,
-                    background: "rgba(0,0,0,0.3)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    opacity: 0,
-                    transition: "opacity 0.3s",
-                  }}
-                    onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-                    onMouseLeave={e => (e.currentTarget.style.opacity = "0")}
-                  >
-                    <span style={{
-                      fontSize: 11,
-                      letterSpacing: 3,
-                      textTransform: "uppercase",
-                      color: "white",
-                      border: "1px solid rgba(255,255,255,0.5)",
-                      padding: "10px 24px",
-                      borderRadius: 2,
-                      backdropFilter: "blur(4px)",
-                    }}>
-                      Ver galería
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Nav inferior — prev / next */}
+            {/* Header del modal */}
             <div style={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              paddingTop: 32,
-              borderTop: "1px solid rgba(255,255,255,0.06)",
-              marginTop: 16,
+              padding: "14px 20px",
+              borderBottom: "1px solid rgba(255,255,255,0.1)",
             }}>
-              <button
-                onClick={onPrev}
-                disabled={!canPrev}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: canPrev ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.12)",
-                  fontSize: 13,
-                  letterSpacing: 2,
-                  textTransform: "uppercase",
-                  cursor: canPrev ? "pointer" : "not-allowed",
-                  padding: "8px 0",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  transition: "color 0.2s",
-                }}
-                onMouseEnter={e => { if (canPrev) e.currentTarget.style.color = "white"; }}
-                onMouseLeave={e => { if (canPrev) e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}
-              >
-                ← Anterior
-              </button>
-
               <span style={{
                 fontSize: 11,
-                color: "rgba(255,255,255,0.2)",
-                letterSpacing: 2,
+                letterSpacing: 3,
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,0.55)",
               }}>
-                {currentIndex + 1} · {total}
+                Como llegar
               </span>
-
               <button
-                onClick={onNext}
-                disabled={!canNext}
+                onClick={closeMaps}
                 style={{
                   background: "none",
                   border: "none",
-                  color: canNext ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.12)",
-                  fontSize: 13,
-                  letterSpacing: 2,
-                  textTransform: "uppercase",
-                  cursor: canNext ? "pointer" : "not-allowed",
-                  padding: "8px 0",
+                  color: "rgba(255,255,255,0.5)",
+                  fontSize: 16,
+                  cursor: "pointer",
+                  lineHeight: 1,
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            {/* Mapa */}
+            <div style={{ flex: 1, overflow: "hidden" }}>
+              {mapsUrl ? (
+                <iframe
+                  src={mapsUrl}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0, display: "block" }}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              ) : (
+                <div style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 10,
-                  transition: "color 0.2s",
-                }}
-                onMouseEnter={e => { if (canNext) e.currentTarget.style.color = "white"; }}
-                onMouseLeave={e => { if (canNext) e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}
-              >
-                Siguiente →
-              </button>
+                  justifyContent: "center",
+                  height: "100%",
+                  color: "rgba(255,255,255,0.3)",
+                  fontSize: 13,
+                  letterSpacing: 2,
+                }}>
+                  Ubicación no disponible
+                </div>
+              )}
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Galería lightbox */}
-      {galleryOpen && currentItem.images && (
-        <ImageGallery
-          images={currentItem.images}
-          initialIndex={0}
-          onClose={() => setGalleryOpen(false)}
-        />
+      {/* ── POPUP: INFORMACION COMPLETA (QR) ─────────────────────────────────── */}
+      {qrOpen && (
+        <div
+          ref={qrPopupRef}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 10,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {/* Overlay backdrop */}
+          <div
+            onClick={closeQr}
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(0,0,0,0.72)",
+            }}
+          />
+          {/* Modal */}
+          <div style={{
+            position: "relative",
+            padding: "24px 32px 32px",
+            background: "#111",
+            border: "1px solid rgba(255,255,255,0.15)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 24,
+            minWidth: 280,
+          }}>
+            {/* Header del modal */}
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "100%",
+            }}>
+              <span style={{
+                fontSize: 11,
+                letterSpacing: 3,
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,0.55)",
+              }}>
+                Informacion Completa
+              </span>
+              <button
+                onClick={closeQr}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "rgba(255,255,255,0.5)",
+                  fontSize: 16,
+                  cursor: "pointer",
+                  lineHeight: 1,
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            {/* QR Code */}
+            <div style={{ background: "white", padding: 16 }}>
+              <QRCode value={categoryUrl} size={180} />
+            </div>
+            <p style={{
+              fontSize: 11,
+              letterSpacing: 2,
+              color: "rgba(255,255,255,0.35)",
+              textAlign: "center",
+              margin: 0,
+              textTransform: "uppercase",
+            }}>
+              Escaneá para más información
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── POPUP: GALERÍA DE IMÁGENES ───────────────────────────────────────── */}
+      {galleryOpen && thumbnails.length > 0 && (
+        <div
+          ref={galleryPopupRef}
+          onMouseDown={handleGalleryDragStart}
+          onMouseUp={handleGalleryDragEnd}
+          onTouchStart={handleGalleryDragStart}
+          onTouchEnd={handleGalleryDragEnd}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 10,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "grab",
+          }}
+        >
+          {/* Overlay backdrop — no cierra al hacer click */}
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(0,0,0,0.88)",
+          }} />
+
+          {/* Imagen principal */}
+          <div style={{
+            position: "relative",
+            width: "70%",
+            maxHeight: "75vh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 16,
+          }}>
+            <img
+              src={thumbnails[galleryIndex].url}
+              alt={thumbnails[galleryIndex].caption ?? ""}
+              draggable={false}
+              onDragStart={e => e.preventDefault()}
+              style={{
+                maxWidth: "100%",
+                maxHeight: "60vh",
+                objectFit: "contain",
+                display: "block",
+                pointerEvents: "none",
+              }}
+            />
+            {thumbnails[galleryIndex].caption && (
+              <p style={{
+                fontSize: 11,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,0.45)",
+                margin: 0,
+              }}>
+                {thumbnails[galleryIndex].caption}
+              </p>
+            )}
+
+            {/* Dots indicadores */}
+            {thumbnails.length > 1 && (
+              <div style={{ display: "flex", gap: 8 }}>
+                {thumbnails.map((_, i) => (
+                  <div
+                    key={i}
+                    onClick={e => { e.stopPropagation(); setGalleryIndex(i); }}
+                    style={{
+                      width: i === galleryIndex ? 24 : 8,
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: i === galleryIndex ? "white" : "rgba(255,255,255,0.35)",
+                      cursor: "pointer",
+                      transition: "width 0.3s ease",
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Flecha anterior */}
+          {galleryIndex > 0 && (
+            <button
+              onClick={e => { e.stopPropagation(); setGalleryIndex(i => i - 1); }}
+              style={{
+                position: "absolute",
+                left: 32,
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "rgba(255,255,255,0.1)",
+                border: "none",
+                color: "white",
+                width: 48,
+                height: 48,
+                borderRadius: "50%",
+                fontSize: 20,
+                cursor: "pointer",
+                backdropFilter: "blur(4px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              ←
+            </button>
+          )}
+
+          {/* Flecha siguiente */}
+          {galleryIndex < thumbnails.length - 1 && (
+            <button
+              onClick={e => { e.stopPropagation(); setGalleryIndex(i => i + 1); }}
+              style={{
+                position: "absolute",
+                right: 32,
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "rgba(255,255,255,0.1)",
+                border: "none",
+                color: "white",
+                width: 48,
+                height: 48,
+                borderRadius: "50%",
+                fontSize: 20,
+                cursor: "pointer",
+                backdropFilter: "blur(4px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              →
+            </button>
+          )}
+
+          {/* Botón cerrar */}
+          <button
+            onClick={closeGallery}
+            style={{
+              position: "absolute",
+              top: 24,
+              right: 32,
+              background: "none",
+              border: "none",
+              color: "rgba(255,255,255,0.55)",
+              fontSize: 20,
+              cursor: "pointer",
+              lineHeight: 1,
+            }}
+          >
+            ✕
+          </button>
+        </div>
       )}
     </div>
-  );
-}
-
-// ─── Botón de navegación lateral ──────────────────────────────────────────────
-
-function NavButton({
-  direction,
-  onClick,
-  disabled,
-  active,
-}: {
-  direction: "prev" | "next";
-  onClick: () => void;
-  disabled: boolean;
-  active: boolean;
-}) {
-  const isPrev = direction === "prev";
-
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={active ? "btn-pulse" : ""}
-      style={{
-        position: "absolute",
-        [isPrev ? "left" : "right"]: 16,
-        top: "calc(65vh / 2)",
-        transform: "translateY(-50%)",
-        zIndex: 20,
-        width: 44,
-        height: 44,
-        borderRadius: "50%",
-        background: active
-          ? "rgba(10,10,10,0.55)"
-          : "rgba(10,10,10,0.2)",
-        backdropFilter: "blur(12px)",
-        border: "1px solid rgba(255,255,255,0.1)",
-        color: active ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.15)",
-        fontSize: 18,
-        cursor: disabled ? "not-allowed" : "pointer",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        boxShadow: active ? "0 4px 16px rgba(0,0,0,0.4)" : "none",
-        transition: "background 0.2s, color 0.2s",
-      }}
-    >
-      {isPrev ? "←" : "→"}
-    </button>
   );
 }

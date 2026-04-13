@@ -107,7 +107,6 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-    const [currentItemIndex, setCurrentItemIndex] = useState(0);
 
     const slideRef = useRef<HTMLDivElement>(null);
     const textRef = useRef<HTMLDivElement>(null);
@@ -169,7 +168,6 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
             ease: "power2.in",
             onComplete: () => {
                 setSelectedCategory(category);
-                setCurrentItemIndex(0);
                 onCategorySelect?.(category.id);
                 gsap.set(slideRef.current, { scale: 1 });
             },
@@ -196,21 +194,11 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
 
     // ── Vista detalle ─────────────────────────────────────────────────────────
     if (selectedCategory) {
-        const currentItem = selectedCategory.items[currentItemIndex];
-        const total = selectedCategory.items.length;
-        
         return (
             <DetailView
-            category={selectedCategory}
-            currentItem={currentItem}
-            currentIndex={currentItemIndex}
-            total={total}
-            onClose={() => {
-                setSelectedCategory(null);
-                setCurrentItemIndex(0);
-            }}
-            onPrev={() => setCurrentItemIndex(i => Math.max(0, i - 1))}
-            onNext={() => setCurrentItemIndex(i => Math.min(total - 1, i + 1))}
+                category={selectedCategory}
+                categoryIndex={currentIndex}
+                onClose={() => setSelectedCategory(null)}
             />
         );
     }

@@ -28,6 +28,7 @@ export function HorizontalGallery({
   const [opacity, setOpacity] = useState(0);
 
   const items = category.items;
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   // ── Fade in al montar ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -170,57 +171,92 @@ export function HorizontalGallery({
           userSelect: "none",
         }}
       >
-        {items.map((item, i) => (
-          <div
-            key={item.id}
-            style={{
-              position: "relative",
-              flexShrink: 0,
-              width: `${CARD_WIDTH_VW}vw`,
-              height: `${CARD_HEIGHT_VH}vh`,
-              overflow: "hidden",
-            }}
-          >
-            {/* Imagen con parallax */}
+        {items.map((item, i) => {
+          const isHovered = hoveredIndex === i;
+          return (
             <div
-              ref={el => { imageRefs.current[i] = el; }}
+              key={item.id}
+              onMouseEnter={() => setHoveredIndex(i)}
+              onMouseLeave={() => setHoveredIndex(null)}
               style={{
-                position: "absolute",
-                inset: "-10% 0",  // overscan vertical para el parallax
-                backgroundImage: `url(${item.mainImage})`,
-                backgroundSize: "cover",
-                backgroundPosition: "50% 50%",
+                position: "relative",
+                flexShrink: 0,
+                width: `${CARD_WIDTH_VW}vw`,
+                height: `${CARD_HEIGHT_VH}vh`,
+                overflow: "hidden",
               }}
-            />
+            >
+              {/* Imagen con parallax */}
+              <div
+                ref={el => { imageRefs.current[i] = el; }}
+                style={{
+                  position: "absolute",
+                  inset: "-10% 0",
+                  backgroundImage: `url(${item.mainImage})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "50% 50%",
+                }}
+              />
 
-            {/* Overlay degradado */}
-            <div style={{
-              position: "absolute",
-              inset: 0,
-              background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.05) 50%)",
-            }} />
+              {/* Overlay degradado — se intensifica al hover */}
+              <div style={{
+                position: "absolute",
+                inset: 0,
+                background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.05) 55%)",
+                opacity: isHovered ? 1 : 0.7,
+                transition: "opacity 0.35s ease",
+              }} />
 
-            {/* Título del item */}
-            <div style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              padding: "20px 24px",
-            }}>
+              {/* Título — sube cuando aparece la descripción */}
               <p style={{
+                position: "absolute",
+                bottom: 20,
+                left: 24,
+                right: 24,
                 color: "white",
                 fontSize: 18,
                 fontWeight: 600,
                 margin: 0,
                 letterSpacing: 0.3,
                 textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                zIndex: 2,
+                transform: isHovered ? "translateY(-110px)" : "translateY(0)",
+                transition: "transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)",
               }}>
                 {item.title}
               </p>
+
+              {/* Panel de descripción — entra desde abajo */}
+              <div style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                padding: "18px 24px 22px",
+                background: "rgba(0, 0, 0, 0.62)",
+                backdropFilter: "blur(10px)",
+                zIndex: 1,
+                transform: isHovered ? "translateY(0)" : "translateY(100%)",
+                opacity: isHovered ? 1 : 0,
+                transition: "transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease",
+              }}>
+                <div
+                  dangerouslySetInnerHTML={{ __html: item.description }}
+                  style={{
+                    color: "rgba(255,255,255,0.82)",
+                    fontSize: 12,
+                    lineHeight: 1.65,
+                    margin: 0,
+                    display: "-webkit-box",
+                    WebkitLineClamp: 5,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                  }}
+                />
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

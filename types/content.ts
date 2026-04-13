@@ -20,6 +20,8 @@ export interface Category {
     title: string;
     coverImage: string;
     shortDescription?: string;
+    latitude?: number;
+    longitude?: number;
     items: GalleryItem[];
 }
 
