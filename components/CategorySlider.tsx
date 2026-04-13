@@ -144,14 +144,6 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
         });
     }, [currentIndex]);
 
-    const handlePrev = () => {
-        if (currentIndex > 0) navigateTo(currentIndex - 1);
-    };
-
-    const handleNext = () => {
-        if (currentIndex < CATEGORIES_AND_DATA.length - 1) navigateTo(currentIndex + 1);
-    };
-
     // ── Drag / Swipe ──────────────────────────────────────────────────────────
     const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
         dragStartX.current = "touches" in e ? e.touches[0].clientX : e.clientX;
@@ -163,8 +155,8 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
         const diff = dragStartX.current - endX;
 
         if (Math.abs(diff) > 50) {
-            if (diff > 0) handleNext();
-            else handlePrev();
+            if (diff > 0 && currentIndex < CATEGORIES_AND_DATA.length - 1) navigateTo(currentIndex + 1);
+            else if (diff < 0 && currentIndex > 0) navigateTo(currentIndex - 1);
         }
         dragStartX.current = null;
     };
@@ -241,87 +233,115 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
                 userSelect: "none",
             }}
         >
-            {/* Overlay */}
+            {/* Overlay base */}
             <div style={{
                 position: "absolute",
                 inset: 0,
-                background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.1) 100%)",
+                background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0.1) 100%)",
             }} />
 
-            {/* Texto sobre imagen */}
+            {/* Línea vertical derecha — debajo del gradiente */}
+            <div style={{
+                position: "absolute",
+                right: 432,
+                top: 0,
+                bottom: 0,
+                width: 1,
+                background: "rgba(255,255,255,0.35)",
+                zIndex: 1,
+            }} />
+
+            {/* Gradiente derecho — encima de la línea derecha, la desvanece */}
+            <div style={{
+                position: "absolute",
+                inset: 0,
+                background: "linear-gradient(to left, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 55%)",
+                zIndex: 2,
+            }} />
+
+            {/* Título + número — border-left y border-bottom forman las líneas del marco */}
             <div
                 ref={textRef}
-                onClick={() => handleCategoryClick(category)}
                 style={{
                     position: "absolute",
-                    bottom: 80,
-                    left: 60,
+                    top: "35%",
+                    left: 32,
+                    width: 1925,
+                    borderLeft: "1px solid rgba(255,255,255,0.35)",
+                    borderBottom: "1px solid rgba(255,255,255,0.35)",
+                    paddingTop: 12,
+                    paddingLeft: 20,
+                    paddingBottom: 20,
+                    paddingRight: 48,
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "baseline",
+                    gap: 16,
                     color: "white",
-                    cursor: "pointer",
+                    zIndex: 3,
                 }}
             >
-                <p style={{ fontSize: 13, letterSpacing: 3, color: "#aaa", textTransform: "uppercase", marginBottom: 8 }}>
-                    {currentIndex + 1} / {CATEGORIES_AND_DATA.length}
-                </p>
-                <h2 style={{ fontSize: 56, fontWeight: 700, marginBottom: 12, lineHeight: 1 }}>
+                <span style={{
+                    fontSize: 18,
+                    fontWeight: 400,
+                    color: "rgba(255,255,255,0.55)",
+                    letterSpacing: 3,
+                }}>
+                    {String(currentIndex + 1).padStart(2, "0")}
+                </span>
+                <h2 style={{
+                    fontSize: 54,
+                    fontWeight: 700,
+                    lineHeight: 1,
+                    margin: 0,
+                    textTransform: "uppercase",
+                }}>
                     {category.title}
                 </h2>
-                <p style={{ fontSize: 14, color: "#bbb" }}>
-                    {category.items.length} {category.items.length === 1 ? "artículo" : "artículos"} — Tocá para explorar
-                </p>
             </div>
 
-            {/* Flecha izquierda */}
-            <button
-                onClick={handlePrev}
-                disabled={currentIndex === 0}
-                style={{
-                    position: "absolute",
-                    left: 24,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background: currentIndex === 0 ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.15)",
-                    border: "none",
-                    color: currentIndex === 0 ? "#444" : "white",
-                    width: 48,
-                    height: 48,
-                    borderRadius: "50%",
-                    cursor: currentIndex === 0 ? "not-allowed" : "pointer",
-                    fontSize: 20,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backdropFilter: "blur(4px)",
-                }}
-            >
-                ←
-            </button>
-
-            {/* Flecha derecha */}
-            <button
-                onClick={handleNext}
-                disabled={currentIndex === CATEGORIES_AND_DATA.length - 1}
-                style={{
-                    position: "absolute",
-                    right: 24,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background: currentIndex === CATEGORIES_AND_DATA.length - 1 ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.15)",
-                    border: "none",
-                    color: currentIndex === CATEGORIES_AND_DATA.length - 1 ? "#444" : "white",
-                    width: 48,
-                    height: 48,
-                    borderRadius: "50%",
-                    cursor: currentIndex === CATEGORIES_AND_DATA.length - 1 ? "not-allowed" : "pointer",
-                    fontSize: 20,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backdropFilter: "blur(4px)",
-                }}
-            >
-                →
-            </button>
+            {/* Panel derecho: descripción + botón EXPLORAR — encima del gradiente */}
+            <div style={{
+                position: "absolute",
+                right: 430,
+                top: "55%",
+                transform: "translateY(-50%)",
+                maxWidth: 280,
+                color: "white",
+                display: "flex",
+                flexDirection: "column",
+                gap: 20,
+                zIndex: 3,
+            }}>
+                {category.shortDescription && (
+                    <p style={{
+                        fontSize: 14,
+                        lineHeight: 1.7,
+                        color: "rgba(255,255,255,0.85)",
+                        margin: 0,
+                    }}>
+                        {category.shortDescription}
+                    </p>
+                )}
+                <button
+                    onClick={() => handleCategoryClick(category)}
+                    style={{
+                        alignSelf: "flex-start",
+                        backgroundColor: "rgba(70,70,70,0.7)",
+                        backdropFilter: "blur(6px)",
+                        border: "none",
+                        color: "white",
+                        padding: "10px 20px",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        letterSpacing: 3,
+                        textTransform: "uppercase",
+                        cursor: "pointer",
+                    }}
+                >
+                    Explorar
+                </button>
+            </div>
 
             {/* Indicadores de posición */}
             <div style={{
@@ -331,6 +351,7 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
                 transform: "translateX(-50%)",
                 display: "flex",
                 gap: 8,
+                zIndex: 3,
             }}>
                 {CATEGORIES_AND_DATA.map((_, i) => (
                     <div
