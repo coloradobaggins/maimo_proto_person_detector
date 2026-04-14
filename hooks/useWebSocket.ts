@@ -20,6 +20,8 @@ interface useWebSocketProps {
     onCategoryCurrentRequest?: () => void; // Mac/AppAdulto debe responder con su categoría actual
 
     // Notebook escucha
+    onAdultDetected?: () => void;
+    onAdultGone?: () => void;
     onCategorySelected?: (category: PuzzleCategory) => void;
     onCategoryUpdate?: (category: PuzzleCategory) => void;
     onCategoryCurrentResponse?: (category: PuzzleCategory) => void;
@@ -34,6 +36,8 @@ export function useWebSocket({
     onPuzzleActive,
     onPuzzleCompleted,
     onCategoryCurrentRequest,
+    onAdultDetected,
+    onAdultGone,
     onCategorySelected,
     onCategoryUpdate,
     onCategoryCurrentResponse,
@@ -96,6 +100,20 @@ export function useWebSocket({
         }
 
         // ── Notebook escucha ──────────────────────────────────────────────────────
+        if (onAdultDetected) {
+            socket.on("adult:detected", () => {
+                console.log(`WS: adulto detectado en mac`);
+                onAdultDetected();
+            });
+        }
+
+        if (onAdultGone) {
+            socket.on("adult:gone", () => {
+                console.log(`WS: adulto se fue de la mac`);
+                onAdultGone();
+            });
+        }
+
         if (onCategorySelected) {
             socket.on("category:selected", ({ category } : {category: PuzzleCategory}) => {
                 console.log(`WS: categoría seleccionada recibida: ${category}`);

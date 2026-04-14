@@ -7,6 +7,7 @@ import { useFaceDetection } from "@/hooks/useFaceDetection";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useConfig } from "@/context/ConfigContext";
 import { useNotebookSync } from "@/hooks/useNotebookSync";
+import { useMacSync } from "@/hooks/useMacSync";
 import { PuzzleCategory, PUZZLE_CATEGORIES } from "@/types/config";
 import { PuzzleBoard } from "@/components/PuzzleBoards";
 import { CategorySlider } from "@/components/CategorySlider";
@@ -21,6 +22,7 @@ const ROOM_NAME = APP_MODE === "mac" ? "mac-app" : "notebook-app";
 export default function Home() {
   const [isDebug, setIsDebug] = useState(false);
   const [childPresent, setChildPresent] = useState(false);
+  const [adultPresent, setAdultPresent] = useState(false);
   const [childOverride, setChildOverride] = useState(false);
   const childOverrideRef = useRef(false);
   const childPresentRef = useRef(false);
@@ -109,11 +111,15 @@ export default function Home() {
         return prev === "idle" ? "greeting" : prev;
       });
     }
-  
-    if (detectionState === "idle") {
+  }, [detectionState]);
+
+  // Reset notebook solo cuando ambos se van (niño sin cámara Y adulto sin mac)
+  useEffect(() => {
+    if (APP_MODE !== "notebook") return;
+    if (detectionState === "idle" && !adultPresent) {
       setNotebookPhase("idle");
     }
-  }, [detectionState]);
+  }, [detectionState, adultPresent]);
 
   const [showPuzzle, setShowPuzzle] = useState(false);
 
@@ -228,10 +234,16 @@ export default function Home() {
           if (!puzzleActive) setActiveCategory(category);
         }
       : undefined,
+
+    onAdultDetected: APP_MODE === "notebook" ? () => setAdultPresent(true) : undefined,
+    onAdultGone: APP_MODE === "notebook" ? () => setAdultPresent(false) : undefined,
   });
 
   // ── Modo Notebook/childApp: emite señales a NestJS cuando detecta un niño ───────────
   useNotebookSync(APP_MODE === "notebook" ? detectionState : "idle");
+
+  // ── Modo Mac: emite presencia del adulto a NestJS para que notebook pueda saberlo ──
+  useMacSync(APP_MODE === "mac" ? detectionState : "idle");
 
   
 
