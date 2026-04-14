@@ -21,6 +21,8 @@ const ROOM_NAME = APP_MODE === "mac" ? "mac-app" : "notebook-app";
 export default function Home() {
   const [isDebug, setIsDebug] = useState(false);
   const [childPresent, setChildPresent] = useState(false);
+  const [childOverride, setChildOverride] = useState(false);
+  const childOverrideRef = useRef(false);
 
   const { config, isLoading: isLoadingConfig, error: errorConfig, refresh } = useConfig();
   const { isLoaded } = useFaceApi();
@@ -65,6 +67,18 @@ export default function Home() {
   useEffect(() => {
     notebookPhaseRef.current = notebookPhase;
   }, [notebookPhase]);
+
+  useEffect(() => {
+    childOverrideRef.current = childOverride;
+  }, [childOverride]);
+
+  // Reset override cuando el adulto se va (reinicio de ciclo)
+  useEffect(() => {
+    if (APP_MODE !== "mac") return;
+    if (detectionState === "idle") {
+      setChildOverride(false);
+    }
+  }, [detectionState]);
   
   useEffect(() => {
     if (APP_MODE !== "notebook") return;
@@ -103,6 +117,8 @@ export default function Home() {
       if (detectionState === "both") return "child";
       return detectionState;
     }
+    // mac: override activo → ignorar presencia del niño
+    if (childOverride) return "adult";
     // mac: si detecta ambos en la misma cámara, prioriza adult
     if (detectionState === "both") return "adult";
     if (detectionState === "adult" && childPresent) return "adult-with-child";
@@ -118,9 +134,9 @@ export default function Home() {
   },[activeCategory]);
 
   // ── Mac/AdultApp: adulto selecciona categoría ──────────────────────────────────────
-  const handleCategorySelect = useCallback((category: PuzzleCategory) => {
+  const handleCategorySelect = useCallback((category: string) => {
     console.log(`Categoria seleccionada por el adulto: ${category}`);
-    setActiveCategory(category);
+    setActiveCategory(category as PuzzleCategory);
 
     if(!puzzleActive) {
       // Si no hay puzzle activo en notebook, enviamos la categoría
@@ -145,7 +161,7 @@ export default function Home() {
     onConfigUpdate: refresh,
 
     // Mac/AdultApp escucha
-    onChildDetected: APP_MODE === "mac" ? () => setChildPresent(true) : undefined,
+    onChildDetected: APP_MODE === "mac" ? () => { if (!childOverrideRef.current) setChildPresent(true); } : undefined,
     onChildGone: APP_MODE === "mac" ? () => setChildPresent(false) : undefined,
     onPuzzleActive: APP_MODE === "mac" ? () => setPuzzleActive(true) : undefined,
     onPuzzleCompleted: APP_MODE === "mac" ? () => setPuzzleActive(false) : undefined,
@@ -292,10 +308,80 @@ export default function Home() {
       )}
 
       {APP_MODE === "mac" && globalState === "adult-with-child" && (
-        <CategoryGrid onCategorySelect={id => handleCategorySelect(id as PuzzleCategory)} />
+        <CategoryGrid onCategorySelect={handleCategorySelect} />
       )}
 
       {globalState === "idle" && <IdleView mode={APP_MODE as "mac" | "notebook"} />}
+
+      {APP_MODE === "mac" && globalState === "adult-with-child" && (
+        <div style={{
+          position: "fixed",
+          bottom: 32,
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 1000,
+          display: "flex",
+          alignItems: "center",
+          gap: 20,
+          //backgroundColor: "rgba(80, 80, 80, 0.88)",
+          borderRadius: 12,
+          padding: "14px 28px",
+          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.55)",
+          backdropFilter: "blur(6px)",
+        }}>
+          <span style={{
+            color: "rgba(255, 255, 255, 0.75)",
+            fontSize: 14,
+            letterSpacing: "0.01em",
+            maxWidth: 320,
+            lineHeight: 1.4,
+          }}>
+            Detectamos que estás junto a un niño, por lo tanto esta vista es resumida.
+          </span>
+          <button
+            onClick={() => setChildOverride(true)}
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.15)",
+              color: "#fff",
+              border: "1px solid rgba(255, 255, 255, 0.25)",
+              borderRadius: 8,
+              padding: "10px 20px",
+              fontSize: 14,
+              fontWeight: 500,
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              letterSpacing: "0.02em",
+            }}
+          >
+            Ver versión completa
+          </button>
+        </div>
+      )}
+
+      {APP_MODE === "mac" && childOverride && childPresent && (
+        <button
+          onClick={() => setChildOverride(false)}
+          style={{
+            position: "fixed",
+            bottom: 32,
+            right: 32,
+            zIndex: 1000,
+            backgroundColor: "rgba(80, 80, 80, 0.88)",
+            color: "#fff",
+            border: "none",
+            borderRadius: 12,
+            padding: "14px 28px",
+            fontSize: 15,
+            fontWeight: 500,
+            cursor: "pointer",
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.55)",
+            backdropFilter: "blur(6px)",
+            letterSpacing: "0.02em",
+          }}
+        >
+          Ver versión resumida
+        </button>
+      )}
 
       {/* Puzzle: solo en modo notebook/childApp cuando hay un niño presente */}
       {APP_MODE === "notebook" && (

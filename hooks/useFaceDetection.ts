@@ -37,7 +37,7 @@ function classifyDetections(detections: { age: number }[]): DetectionState {
 // ─── Hook ────────────────────────────────────────────────────────────────────
 
 export function useFaceDetection(
-  videoRef: React.RefObject<HTMLVideoElement>,
+  videoRef: React.RefObject<HTMLVideoElement | null>,
   isReady: boolean,
   isLoaded: boolean,
   sensorConfig: SensorDetections
