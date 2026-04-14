@@ -23,6 +23,10 @@ export default function Home() {
   const [childPresent, setChildPresent] = useState(false);
   const [childOverride, setChildOverride] = useState(false);
   const childOverrideRef = useRef(false);
+  const childPresentRef = useRef(false);
+  const [showChildPopup, setShowChildPopup] = useState(false);
+  const showChildPopupRef = useRef(false);
+  const detectionStateRef = useRef<ReturnType<typeof useFaceDetection>["detectionState"]>("idle");
 
   const { config, isLoading: isLoadingConfig, error: errorConfig, refresh } = useConfig();
   const { isLoaded } = useFaceApi();
@@ -72,11 +76,25 @@ export default function Home() {
     childOverrideRef.current = childOverride;
   }, [childOverride]);
 
-  // Reset override cuando el adulto se va (reinicio de ciclo)
+  useEffect(() => {
+    childPresentRef.current = childPresent;
+  }, [childPresent]);
+
+  useEffect(() => {
+    showChildPopupRef.current = showChildPopup;
+  }, [showChildPopup]);
+
+  useEffect(() => {
+    detectionStateRef.current = detectionState;
+  }, [detectionState]);
+
+  // Reset total cuando el adulto se va (reinicio de ciclo)
   useEffect(() => {
     if (APP_MODE !== "mac") return;
     if (detectionState === "idle") {
       setChildOverride(false);
+      setChildPresent(false);
+      setShowChildPopup(false);
     }
   }, [detectionState]);
   
@@ -161,8 +179,21 @@ export default function Home() {
     onConfigUpdate: refresh,
 
     // Mac/AdultApp escucha
-    onChildDetected: APP_MODE === "mac" ? () => { if (!childOverrideRef.current) setChildPresent(true); } : undefined,
-    onChildGone: APP_MODE === "mac" ? () => setChildPresent(false) : undefined,
+    onChildDetected: APP_MODE === "mac"
+      ? () => {
+          if (childOverrideRef.current) return; // override activo, ignorar
+          if (showChildPopupRef.current) return; // popup ya visible, no duplicar
+          if (childPresentRef.current) return; // ya en adult-with-child, no mostrar popup de nuevo
+          if (detectionStateRef.current === "adult") {
+            // Adulto navegando activamente → pedir confirmación
+            setShowChildPopup(true);
+          } else {
+            // Niño llegó antes que el adulto → switch directo, sin popup
+            setChildPresent(true);
+          }
+        }
+      : undefined,
+    onChildGone: undefined, // childPresent solo se resetea en idle (cuando el adulto también se va)
     onPuzzleActive: APP_MODE === "mac" ? () => setPuzzleActive(true) : undefined,
     onPuzzleCompleted: APP_MODE === "mac" ? () => setPuzzleActive(false) : undefined,
     onCategoryCurrentRequest: APP_MODE === "mac" ? handleCategoryCurrentRequest : undefined,
@@ -381,6 +412,78 @@ export default function Home() {
         >
           Ver versión resumida
         </button>
+      )}
+
+      {APP_MODE === "mac" && showChildPopup && (
+        <>
+          {/* Overlay */}
+          <div style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.65)",
+            zIndex: 2000,
+            backdropFilter: "blur(6px)",
+          }} />
+          {/* Modal */}
+          <div style={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 2001,
+            backgroundColor: "rgba(45, 45, 45, 0.96)",
+            borderRadius: 16,
+            padding: "40px 48px",
+            maxWidth: 480,
+            width: "90%",
+            boxShadow: "0 24px 64px rgba(0, 0, 0, 0.7)",
+            backdropFilter: "blur(12px)",
+            textAlign: "center",
+          }}>
+            <p style={{
+              color: "rgba(255, 255, 255, 0.9)",
+              fontSize: 17,
+              lineHeight: 1.65,
+              marginBottom: 32,
+            }}>
+              Detectamos la presencia de un niño. Como estás navegando, ¿querés ver una versión resumida de esta muestra?
+            </p>
+            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+              <button
+                onClick={() => { setChildPresent(true); setShowChildPopup(false); }}
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.15)",
+                  color: "#fff",
+                  border: "1px solid rgba(255, 255, 255, 0.3)",
+                  borderRadius: 8,
+                  padding: "12px 22px",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                Cambiar de versión
+              </button>
+              <button
+                onClick={() => { setChildOverride(true); setShowChildPopup(false); }}
+                style={{
+                  backgroundColor: "transparent",
+                  color: "rgba(255, 255, 255, 0.6)",
+                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  borderRadius: 8,
+                  padding: "12px 22px",
+                  fontSize: 14,
+                  fontWeight: 400,
+                  cursor: "pointer",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                No, estoy con tiempo
+              </button>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Puzzle: solo en modo notebook/childApp cuando hay un niño presente */}
