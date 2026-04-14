@@ -53,6 +53,9 @@ export default function Home() {
   const [puzzleActive, setPuzzleActive] = useState(false);
   const defaultCategory = config?.config.default_puzzle_category;
   const currentCategory = activeCategory ?? defaultCategory;
+  if (currentCategory && !config.puzzles[currentCategory]) {
+    console.warn(`[Config] La categoría "${currentCategory}" no existe en puzzles. Corroborar datos JSON content — los IDs de app-content.json deben coincidir exactamente con las claves de puzzles en app-config.json.`);
+  }
   const currentPuzzleImage = config.puzzles[currentCategory]?.images[currentImageIndex];
   const puzzleImageUrl = currentPuzzleImage
     ? `/puzzles/${currentCategory}/${currentPuzzleImage.filename}`

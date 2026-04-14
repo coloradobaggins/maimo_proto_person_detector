@@ -59,7 +59,7 @@
             ]
         },
         {
-            "id": "palaciobarolo",
+            "id": "paseodelbajo",
             "title": "Palacio Barolo",
             "coverImage": "/adult/barolo/palacio-barolo-ve-mayo-street-buenos-aires-argentina.jpg",
             "shortDescription": "El Palacio Barolo es un edificio histórico ubicado en Buenos Aires, Argentina",
@@ -97,7 +97,7 @@
             ]
         },
         {
-            "id": "Subtes",
+            "id": "subtes",
             "title": "Subtes de Buenos Aires",
             "coverImage": "/adult/subtes/estacion-plaza-mayo-inauguracion-1913jpg.webp",
             "shortDescription": "Los subtes... ubicados en Buenos Aires, Argentina",
