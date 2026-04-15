@@ -348,13 +348,15 @@ export function DetailView({ category, categoryIndex, onClose }: DetailViewProps
         </div>
       )}
 
-      {/* ── MENÚ DERECHO: navegación de ítems ───────────────────────────────── */}
+      {/* ── MENÚ DERECHO: navegación de ítems + botones ─────────────────────── */}
       <div style={{
         position: "absolute",
         top: 160,
         right: 52,
         width: "28%",
         zIndex: 3,
+        display: "flex",
+        flexDirection: "column",
       }}>
         {category.items.map((item, i) => (
           <div
@@ -377,19 +379,15 @@ export function DetailView({ category, categoryIndex, onClose }: DetailViewProps
             {item.title}
           </div>
         ))}
-      </div>
 
-      {/* ── BOTONES FIJOS DERECHA ────────────────────────────────────────────── */}
-      <div style={{
-        position: "absolute",
-        bottom: 48,
-        right: 52,
-        zIndex: 3,
-        display: "flex",
-        flexDirection: "column",
-        gap: 10,
-        alignItems: "flex-end",
-      }}>
+        {/* Botones — debajo de la lista, alineados a la izquierda */}
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+          alignItems: "flex-start",
+          marginTop: 32,
+        }}>
         <button
           onClick={() => setMapsOpen(true)}
           style={{
@@ -422,6 +420,7 @@ export function DetailView({ category, categoryIndex, onClose }: DetailViewProps
         >
           Informacion Completa
         </button>
+        </div>
       </div>
 
       {/* ── POPUP: COMO LLEGAR ───────────────────────────────────────────────── */}

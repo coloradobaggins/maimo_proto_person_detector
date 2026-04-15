@@ -29,6 +29,7 @@ export function HorizontalGallery({
 
   const items = category.items;
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [descPopupItem, setDescPopupItem] = useState<typeof items[0] | null>(null);
 
   // ── Fade in al montar ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -116,6 +117,12 @@ export function HorizontalGallery({
       opacity,
       transition: "opacity 0.45s ease",
     }}>
+      <style>{`
+        .gallery-desc-scroll::-webkit-scrollbar { width: 3px; }
+        .gallery-desc-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        .gallery-desc-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.28); border-radius: 2px; }
+        .gallery-desc-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
+      `}</style>
       {/* Botón cerrar */}
       <button
         onClick={handleClose}
@@ -228,7 +235,9 @@ export function HorizontalGallery({
               </p>
 
               {/* Panel de descripción — entra desde abajo */}
-              <div style={{
+              <div
+                onClick={e => { e.stopPropagation(); setDescPopupItem(item); }}
+                style={{
                 position: "absolute",
                 bottom: 0,
                 left: 0,
@@ -237,6 +246,7 @@ export function HorizontalGallery({
                 background: "rgba(0, 0, 0, 0.62)",
                 backdropFilter: "blur(10px)",
                 zIndex: 1,
+                cursor: "pointer",
                 transform: isHovered ? "translateY(0)" : "translateY(100%)",
                 opacity: isHovered ? 1 : 0,
                 transition: "transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease",
@@ -259,6 +269,92 @@ export function HorizontalGallery({
           );
         })}
       </div>
+
+      {/* Popup descripción completa */}
+      {descPopupItem && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 20,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}>
+          {/* Backdrop */}
+          <div
+            onClick={() => setDescPopupItem(null)}
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(0,0,0,0.72)",
+            }}
+          />
+          {/* Modal */}
+          <div style={{
+            position: "relative",
+            background: "#111",
+            border: "1px solid rgba(255,255,255,0.15)",
+            padding: "24px 32px 32px",
+            maxWidth: 560,
+            width: "90%",
+            maxHeight: "60vh",
+            display: "flex",
+            flexDirection: "column",
+            gap: 20,
+          }}>
+            {/* Header */}
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}>
+              <span style={{
+                fontSize: 11,
+                letterSpacing: 3,
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,0.55)",
+              }}>
+                {descPopupItem.title}
+              </span>
+              <button
+                onClick={() => setDescPopupItem(null)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "rgba(255,255,255,0.5)",
+                  fontSize: 16,
+                  cursor: "pointer",
+                  lineHeight: 1,
+                  padding: 0,
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            {/* Contenido scrollable */}
+            <div
+              className="gallery-desc-scroll"
+              style={{
+                overflowY: "auto",
+                overflowX: "hidden",
+                flex: 1,
+                minHeight: 0,
+              }}
+            >
+              <div
+                dangerouslySetInnerHTML={{ __html: descPopupItem.description }}
+                style={{
+                  fontSize: 16,
+                  lineHeight: 1.75,
+                  color: "rgba(255,255,255,0.82)",
+                  margin: 0,
+                  paddingRight: 20,
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
