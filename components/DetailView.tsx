@@ -213,7 +213,7 @@ export function DetailView({ category, categoryIndex, onClose }: DetailViewProps
 
         {/* Derecha: título del ítem activo */}
         <span style={{
-          fontSize: 13,
+          fontSize: 22,
           fontWeight: 700,
           letterSpacing: 3,
           textTransform: "uppercase",
@@ -250,9 +250,10 @@ export function DetailView({ category, categoryIndex, onClose }: DetailViewProps
           top: 160,
           left: 52,
           right: "42%",
-          bottom: 130,
+          bottom: "20vh",
           zIndex: 3,
           overflow: "hidden",
+          paddingRight: 80,
         }}
       >
         {/* Título del ítem */}
@@ -262,7 +263,7 @@ export function DetailView({ category, categoryIndex, onClose }: DetailViewProps
           color: "white",
           textTransform: "uppercase",
           letterSpacing: 3,
-          marginBottom: 20,
+          marginBottom: "6.5vh",
           marginTop: 0,
         }}>
           {currentItem.title}
@@ -271,14 +272,21 @@ export function DetailView({ category, categoryIndex, onClose }: DetailViewProps
         {/* Descripción en 2 columnas con scroll */}
         <div
           className="detail-desc-scroll"
-          style={{ height: 400, overflowY: "auto", overflowX: "hidden" }}
+          style={{
+            height: 400,
+            overflowY: "auto",
+            overflowX: "hidden",
+            backgroundColor: "rgba(0,0,0,0.3)",
+            borderRadius: 8,
+            padding: "20px 24px",
+          }}
         >
           <div
             dangerouslySetInnerHTML={{ __html: currentItem.description }}
             style={{
               columns: 2,
               columnGap: 32,
-              fontSize: 13,
+              fontSize: 18,
               lineHeight: 1.75,
               color: "rgba(255,255,255,0.7)",
               margin: 0,
@@ -305,9 +313,9 @@ export function DetailView({ category, categoryIndex, onClose }: DetailViewProps
         <div style={{
           position: "absolute",
           left: 32,
-          right: "42%",
-          bottom: 0,
-          height: 120,
+          right: "calc(42% + 32px)",
+          bottom: "9vh",
+          height: "13vh",
           display: "flex",
           gap: 2,
           zIndex: 4,

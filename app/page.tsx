@@ -11,7 +11,7 @@ import { useMacSync } from "@/hooks/useMacSync";
 import { PuzzleCategory, PUZZLE_CATEGORIES } from "@/types/config";
 import { PuzzleBoard } from "@/components/PuzzleBoards";
 import { CategorySlider } from "@/components/CategorySlider";
-import { CategoryGrid } from "@/components/CategoryGrid";
+import { CategoryGrid, QRIconSVG } from "@/components/CategoryGrid";
 import { IdleView } from "@/components/IdleView";
 import { ChildGreeting } from "@/components/ChildGreetings";
 
@@ -27,6 +27,7 @@ export default function Home() {
   const childOverrideRef = useRef(false);
   const childPresentRef = useRef(false);
   const [showChildPopup, setShowChildPopup] = useState(false);
+  const [showQRPopup, setShowQRPopup] = useState(false);
   const showChildPopupRef = useRef(false);
   const detectionStateRef = useRef<ReturnType<typeof useFaceDetection>["detectionState"]>("idle");
 
@@ -387,8 +388,7 @@ export default function Home() {
             color: "rgba(255, 255, 255, 0.75)",
             fontSize: 14,
             letterSpacing: "0.01em",
-            maxWidth: 320,
-            lineHeight: 1.4,
+            whiteSpace: "nowrap",
           }}>
             Detectamos que estás junto a un niño, por lo tanto esta vista es resumida.
           </span>
@@ -506,6 +506,93 @@ export default function Home() {
               </button>
             </div>
           </div>
+        </>
+      )}
+
+      {/* Botón QR — visible en adult-with-child (CategoryGrid y HorizontalGallery) */}
+      {APP_MODE === "mac" && globalState === "adult-with-child" && (
+        <>
+          <div
+            onClick={() => setShowQRPopup(true)}
+            style={{
+              position: "fixed",
+              bottom: 24,
+              right: 24,
+              width: 130,
+              height: 130,
+              border: "1px solid rgba(255,255,255,0.8)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              zIndex: 1100,
+              backdropFilter: "blur(4px)",
+              backgroundColor: "rgba(0,0,0,0.15)",
+            }}
+          >
+            <QRIconSVG size={88} />
+          </div>
+
+          {showQRPopup && (
+            <>
+              <div
+                onClick={() => setShowQRPopup(false)}
+                style={{
+                  position: "fixed",
+                  inset: 0,
+                  backgroundColor: "rgba(0,0,0,0.7)",
+                  backdropFilter: "blur(8px)",
+                  zIndex: 2100,
+                }}
+              />
+              <div style={{
+                position: "fixed",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                zIndex: 2101,
+                backgroundColor: "rgba(30,30,30,0.97)",
+                borderRadius: 20,
+                padding: "40px 48px",
+                maxWidth: 420,
+                width: "90%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 24,
+                boxShadow: "0 24px 64px rgba(0,0,0,0.7)",
+              }}>
+                <p style={{
+                  color: "#fff",
+                  fontSize: 22,
+                  fontWeight: 700,
+                  margin: 0,
+                  textAlign: "center",
+                  letterSpacing: "0.01em",
+                }}>
+                  Llevate esta muestra
+                </p>
+                <div style={{
+                  backgroundColor: "#fff",
+                  borderRadius: 12,
+                  padding: 12,
+                  lineHeight: 0,
+                }}>
+                  <QRIconSVG size={260} />
+                </div>
+                <p style={{
+                  color: "rgba(255,255,255,0.7)",
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                  margin: 0,
+                  textAlign: "center",
+                }}>
+                  Sabemos que el tiempo lo marcan los chicos.<br />
+                  Llevate esta muestra y mirala en tu tiempo libre.
+                </p>
+              </div>
+            </>
+          )}
         </>
       )}
 

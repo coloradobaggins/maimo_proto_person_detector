@@ -149,8 +149,9 @@ export function HorizontalGallery({
         position: "absolute",
         top: 30,
         left: PADDING_PX,
-        color: "rgba(255,255,255,0.45)",
-        fontSize: 13,
+        color: "#ffffff",
+        fontSize: 32,
+        fontWeight: 700,
         letterSpacing: 3,
         textTransform: "uppercase",
         margin: 0,
@@ -214,13 +215,13 @@ export function HorizontalGallery({
                 left: 24,
                 right: 24,
                 color: "white",
-                fontSize: 18,
+                fontSize: 28,
                 fontWeight: 600,
                 margin: 0,
                 letterSpacing: 0.3,
                 textShadow: "0 1px 4px rgba(0,0,0,0.6)",
                 zIndex: 2,
-                transform: isHovered ? "translateY(-110px)" : "translateY(0)",
+                transform: isHovered ? "translateY(-130px)" : "translateY(0)",
                 transition: "transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)",
               }}>
                 {item.title}
@@ -244,7 +245,7 @@ export function HorizontalGallery({
                   dangerouslySetInnerHTML={{ __html: item.description }}
                   style={{
                     color: "rgba(255,255,255,0.82)",
-                    fontSize: 12,
+                    fontSize: 16,
                     lineHeight: 1.65,
                     margin: 0,
                     display: "-webkit-box",

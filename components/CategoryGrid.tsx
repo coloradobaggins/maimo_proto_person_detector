@@ -93,54 +93,35 @@ function CategoryCard({
         backgroundPosition: "center",
       }}
     >
-      {/* Overlay base */}
+      {/* Overlay superior — legibilidad del título */}
       <div style={{
         position: "absolute",
         inset: 0,
-        background: "linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.5) 60%)",
-        transition: "background 0.4s ease",
+        background: "linear-gradient(to bottom, rgba(0,0,0,0.75) 0%, transparent 45%)",
       }} />
 
-      {/* Overlay extra al expandirse */}
+      {/* Overlay superior — se intensifica al expandirse para legibilidad */}
       <div style={{
         position: "absolute",
         inset: 0,
-        backgroundColor: "rgba(0,0,0,0.25)",
-        opacity: isHovered ? 1 : 0,
+        background: "linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 55%)",
+        opacity: isHovered ? 1 : 0.7,
         transition: "opacity 0.4s ease",
       }} />
 
-      {/* Footer: título siempre visible + shortDescription aparece al expandirse */}
+      {/* Header: título + descripción arriba */}
       <div style={{
         position: "absolute",
-        bottom: 0,
+        top: 0,
         left: 0,
         right: 0,
-        padding: "24px 28px",
+        padding: "252px 28px 24px",
       }}>
-        {/* shortDescription — fade in sin movimiento */}
-        {category.shortDescription && (
-          <p
-            ref={descRef}
-            style={{
-              color: "rgba(255,255,255,0.9)",
-              fontSize: 14,
-              lineHeight: 1.5,
-              margin: "0 0 10px",
-              opacity: isHovered ? 1 : 0,
-              transition: "opacity 0.3s ease",
-            }}
-          >
-            {category.shortDescription}
-          </p>
-        )}
-
-        {/* Título — siempre visible */}
         <p
           ref={titleRef}
           style={{
             color: "white",
-            fontSize: isHovered ? 26 : 20,
+            fontSize: isHovered ? 40 : 32,
             fontWeight: 700,
             margin: 0,
             letterSpacing: 0.5,
@@ -153,8 +134,84 @@ function CategoryCard({
         >
           {category.title}
         </p>
+
+        {category.shortDescription && (
+          <p
+            ref={descRef}
+            style={{
+              color: "rgba(255,255,255,0.9)",
+              fontSize: 18,
+              lineHeight: 1.5,
+              margin: "10px 0 0",
+              opacity: isHovered ? 1 : 0,
+              transition: "opacity 0.3s ease",
+            }}
+          >
+            {category.shortDescription}
+          </p>
+        )}
       </div>
     </div>
+  );
+}
+
+// ─── Grid principal ───────────────────────────────────────────────────────────
+
+// ─── QR Icon SVG (placeholder decorativo) ────────────────────────────────────
+
+export function QRIconSVG({ size = 170 }: { size?: number }) {
+  const s = size;
+  const u = s / 21; // unidad base (QR estándar ~21 módulos)
+
+  // Módulos del centro (pattern decorativo, no scannable)
+  const centerModules = [
+    [7,0],[8,0],[9,0],[11,0],[12,0],
+    [7,1],[10,1],[12,1],
+    [8,2],[9,2],[11,2],[12,2],
+    [7,3],[8,3],[10,3],
+    [9,4],[11,4],[12,4],
+    [7,5],[9,5],[10,5],
+    [8,6],[9,6],[11,6],[12,6],
+    [7,7],[12,7],
+    [9,8],[10,8],[11,8],
+    [7,9],[8,9],[10,9],[12,9],
+    [8,10],[9,10],[11,10],[12,10],
+    [7,11],[10,11],
+    [9,12],[10,12],[11,12],
+    [7,13],[8,13],[12,13],
+    [7,14],[9,14],[11,14],[12,14],
+  ];
+
+  return (
+    <svg width={s} height={s} viewBox={`0 0 ${s} ${s}`} fill="white">
+      {/* Esquina superior izquierda */}
+      <rect x={0} y={0} width={u*7} height={u*7} rx={u*0.8} fill="white" />
+      <rect x={u*1} y={u*1} width={u*5} height={u*5} rx={u*0.4} fill="black" />
+      <rect x={u*2} y={u*2} width={u*3} height={u*3} rx={u*0.3} fill="white" />
+
+      {/* Esquina superior derecha */}
+      <rect x={u*14} y={0} width={u*7} height={u*7} rx={u*0.8} fill="white" />
+      <rect x={u*15} y={u*1} width={u*5} height={u*5} rx={u*0.4} fill="black" />
+      <rect x={u*16} y={u*2} width={u*3} height={u*3} rx={u*0.3} fill="white" />
+
+      {/* Esquina inferior izquierda */}
+      <rect x={0} y={u*14} width={u*7} height={u*7} rx={u*0.8} fill="white" />
+      <rect x={u*1} y={u*15} width={u*5} height={u*5} rx={u*0.4} fill="black" />
+      <rect x={u*2} y={u*16} width={u*3} height={u*3} rx={u*0.3} fill="white" />
+
+      {/* Módulos centrales decorativos */}
+      {centerModules.map(([col, row], i) => (
+        <rect
+          key={i}
+          x={col * u + u * 0.1}
+          y={row * u + u * 0.1}
+          width={u * 0.85}
+          height={u * 0.85}
+          rx={u * 0.15}
+          fill="white"
+        />
+      ))}
+    </svg>
   );
 }
 
@@ -212,6 +269,18 @@ export function CategoryGrid({ onCategorySelect }: { onCategorySelect?: (id: str
           onClick={() => handleClick(category)}
         />
       ))}
+
+      {/* Sombra inferior para legibilidad del banner de vista reducida */}
+      <div style={{
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: "220px",
+        background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%)",
+        pointerEvents: "none",
+        zIndex: 500,
+      }} />
     </div>
   );
 }

@@ -294,7 +294,7 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
                 right: 430,
                 top: "55%",
                 transform: "translateY(-50%)",
-                maxWidth: 280,
+                maxWidth: 380,
                 color: "white",
                 display: "flex",
                 flexDirection: "column",
@@ -303,7 +303,7 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
             }}>
                 {category.shortDescription && (
                     <p style={{
-                        fontSize: 14,
+                        fontSize: 20,
                         lineHeight: 1.7,
                         color: "rgba(255,255,255,0.85)",
                         margin: 0,
@@ -319,8 +319,8 @@ export function CategorySlider({ onCategorySelect }: { onCategorySelect?: (id: s
                         backdropFilter: "blur(6px)",
                         border: "none",
                         color: "white",
-                        padding: "10px 20px",
-                        fontSize: 12,
+                        padding: "20px 60px",
+                        fontSize: 14,
                         fontWeight: 600,
                         letterSpacing: 3,
                         textTransform: "uppercase",
