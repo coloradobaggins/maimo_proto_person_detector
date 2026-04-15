@@ -77,19 +77,19 @@
             "images": [
                 {
                     "filename": "o1.jpg",
-                    "title": "Titulo o1",
+                    "title": "El Obelisco",
                     "description": "Descripción o1",
                     "audio": "obelisco_audio_1.mp3"
                 },
                 {
                     "filename": "o2.jpg",
-                    "title": "Titulo o2",
+                    "title": "El Obelisco!",
                     "description": "Descripción o2",
                     "audio": "obelisco_audio_2.mp3"
                 },
                 {
                     "filename": "o3.jpg",
-                    "title": "Titulo o3",
+                    "title": "El Obelisco!!",
                     "description": "Descripción o3",
                     "audio": "obelisco_audio_3.mp3"
                 }
@@ -99,12 +99,12 @@
             "images": [
                 {
                     "filename": "p1.jpg",
-                    "title": "Titulo p1",
+                    "title": "Ejemplo",
                     "description": "Descripción p1"
                 },
                 {
                     "filename": "p2.jpg",
-                    "title": "Titulo P2",
+                    "title": "Ejemplo",
                     "description": "Descripción P2"
                 }
             ]
@@ -113,14 +113,14 @@
             "images": [
                 {
                     "filename": "s1.jpg",
-                    "title": "Titulo Subtes1",
-                    "description": "Descripción SUBTEs1",
+                    "title": "Subte Linea A",
+                    "description": "Armá este puzzle!",
                     "audio": "subte_audio_1.mp3"
                 },
                 {
                     "filename": "p2.jpg",
-                    "title": "Titulo SUBTES2",
-                    "description": "Descripción Sub2",
+                    "title": "Subte Linea B",
+                    "description": "Armá este puzzle!",
                     "audio": "subte_audio_2.mp3"
                 }
             ]

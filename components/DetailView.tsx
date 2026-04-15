@@ -32,10 +32,6 @@ export function DetailView({ category, categoryIndex, onClose }: DetailViewProps
   const currentItem = category.items[currentItemIndex];
   const thumbnails = currentItem.images?.slice(0, 3) ?? [];
   const categoryUrl = `https://maimonides.edu/categoria/${category.id}`;
-  const mapsUrl =
-    category.latitude != null && category.longitude != null
-      ? `https://maps.google.com/maps?q=${category.latitude},${category.longitude}&z=15&output=embed`
-      : null;
 
   // ── Animación slide al cambiar ítem ──────────────────────────────────────
   useEffect(() => {
@@ -487,28 +483,11 @@ export function DetailView({ category, categoryIndex, onClose }: DetailViewProps
             </div>
             {/* Mapa */}
             <div style={{ flex: 1, overflow: "hidden" }}>
-              {mapsUrl ? (
-                <iframe
-                  src={mapsUrl}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0, display: "block" }}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-              ) : (
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: "100%",
-                  color: "rgba(255,255,255,0.3)",
-                  fontSize: 13,
-                  letterSpacing: 2,
-                }}>
-                  Ubicación no disponible
-                </div>
-              )}
+              <img
+                src="/maps/mapa.png"
+                alt="Mapa"
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              />
             </div>
           </div>
         </div>
