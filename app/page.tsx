@@ -93,12 +93,12 @@ export default function Home() {
     detectionStateRef.current = detectionState;
   }, [detectionState]);
 
-  // Reset total cuando el adulto se va (reinicio de ciclo)
+  // Reset parcial cuando el adulto se va: override y popup se limpian siempre
+  // childPresent NO se resetea aquí — lo maneja onChildGone condicionalmente
   useEffect(() => {
     if (APP_MODE !== "mac") return;
     if (detectionState === "idle") {
       setChildOverride(false);
-      setChildPresent(false);
       setShowChildPopup(false);
     }
   }, [detectionState]);
@@ -202,7 +202,15 @@ export default function Home() {
           }
         }
       : undefined,
-    onChildGone: undefined, // childPresent solo se resetea en idle (cuando el adulto también se va)
+    onChildGone: APP_MODE === "mac"
+      ? () => {
+          // Solo resetear childPresent si el adulto también se fue
+          // Si el adulto sigue presente, ignorar — no queremos cambiar su vista
+          if (detectionStateRef.current === "idle") {
+            setChildPresent(false);
+          }
+        }
+      : undefined,
     onPuzzleActive: APP_MODE === "mac" ? () => setPuzzleActive(true) : undefined,
     onPuzzleCompleted: APP_MODE === "mac" ? () => setPuzzleActive(false) : undefined,
     onCategoryCurrentRequest: APP_MODE === "mac" ? handleCategoryCurrentRequest : undefined,
